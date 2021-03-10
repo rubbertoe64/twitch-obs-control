@@ -1,3 +1,5 @@
+
+
 const app = express();
 const obs = new OBSWebSocket();
 
@@ -178,7 +180,17 @@ testScene = () => {
   // obs.send('SetSceneItemRender', )
 }
 
-  connectTwitch = () => {
+  connectTwitch = async () => {
+    ComfyJS.onReward = ( user, reward, cost, extra ) => {
+      console.log( user + " redeemed " + reward + " for " + cost );
+      if (reward === 'another test') {
+        toggleSpecifiedSource('Nintendo Switch', 'chims');
+      }
+    }
+
+    ComfyJS.onChat = ( user, message, flags, self, extra ) => {
+      console.log( user, message );
+    }
     // ComfyJS.onCommand = (user, command, message, flags, extra) => {
 		// 	if (command === "test") {
 		// 		console.log("!test was typed in chat")
@@ -192,23 +204,25 @@ testScene = () => {
     //     console.log("!test was typed in chat")
     //   }
     // }
-    ComfyJS.onReward = (user, reward, cost, extra) => {
-      console.log(user + " redeemed " + reward + " for " + cost);
-      if ( reward === 'another test' ) {
-        visible = !visible
-        obs.sendCallback(
-          "SetSceneItemRender",
-          {
-            source: "electron-server",
-            render: visible,
-          },
-          (err, res) => {
-            console.log(res)
-          }
-        )
-      }
-		}
-    ComfyJS.Init("pintarider", "oauth:f6e4wk4gm2ppnd26uvc9352c1ytbhn")
+    // ComfyJS.onReward = (user, reward, cost, extra) => {
+    //   console.log(user + " redeemed " + reward + " for " + cost);
+    //   if ( reward === 'another test' ) {
+    //     visible = !visible
+    //     obs.sendCallback(
+    //       "SetSceneItemRender",
+    //       {
+    //         source: "electron-server",
+    //         render: visible,
+    //       },
+    //       (err, res) => {
+    //         console.log(res)
+    //       }
+    //     )
+    //   }
+		// }
+    console.log('twitch user', savedTwitchUser);
+    console.log('token', oauthToken);
+    ComfyJS.Init('rubbertoebot', `oauth:${oauthToken}`, [savedTwitchUser, 'TI_Felix']);
 
   }
 
@@ -290,10 +304,10 @@ testScene = () => {
     if (getSourcesMap('Nintendo Switch-some sound').render) {
       toggleSource('some sound', false);
     }
+    toggleSource('some sound', true);
+    setTimeout(() => toggleSource('some sound', false), 4000);
     setInterval(() => {
       console.log('looping');
-      toggleSource('some sound', true);
-      setTimeout(() => toggleSource('some sound', false), 4000);
     }, 5000);
   }
 
