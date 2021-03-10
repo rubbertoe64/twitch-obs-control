@@ -9,6 +9,7 @@ body {
 .column1 {
   float: left;
   width: 50%;
+  max-width: 490px;
   padding: 10px;
 }
 

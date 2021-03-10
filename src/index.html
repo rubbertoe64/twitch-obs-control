@@ -68,13 +68,20 @@
           <div class="sub-title">OBS Sources</div>
           <select name="sources" class="mdl-textfield__input" id="sources"></select>
         </div>
+        <div class="mid-column2">
+          <div class="sub-title">Rewards List</div>
+          <select name="sources" class="mdl-textfield__input" id="rewards"></select>
+        </div>
         <form action="#" onsubmit="return false">
           <div class="button-list">
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="console.log('added')">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="mapSourceReward()">
               Add to List
             </button>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="connectTwitch()">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="connectTwitch()" id="connect-twitch-btn">
               Connect Twitch
+            </button>
+            <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="disconnectTwitch()" id="disconnect-twitch-btn">
+              Disconnect Twitch
             </button>
           </div>
         </form>
@@ -117,7 +124,7 @@
       </button>
     </div>
     <div class="small-text">Scopes:</div>
-    <div class="small-text-red">channel:read:redemptions user:read:email chat:edit chat:read</div>
+    <div class="small-text-red">channel:manage:redemptions channel:read:redemptions channel:read:hype_train channel:read:subscriptions moderation:read moderation:read user:edit user:read:email chat:edit chat:read</div>
   </dialog>
 
   </body>

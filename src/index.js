@@ -50,12 +50,15 @@ const obsConnectBut = document.getElementById("obsConnect");
 const obsDisconnectBut = document.getElementById("obsDisconnect");
 const obsScenesElement = document.getElementById('scenes');
 const obsSourcesElement = document.getElementById('sources');
+const rewardsElement = document.getElementById('rewards');
 const dialog = document.querySelector('dialog');
 const showDialogButton = document.querySelector('#show-dialog');
 const twitchSubmitEl = document.getElementById('twitch-api-save');
 const clientIdEl = document.getElementById('twitch-api-client-id-input');
 const clientSecretEl = document.getElementById('twitch-api-client-secret-input');
 const oauthTokenEl = document.getElementById('twitch-oauth-input');
+const connectTwitchBtnEl = document.getElementById('connect-twitch-btn');
+const disconnectTwtichBtnEl = document.getElementById('disconnect-twitch-btn');
 
 
 let { port, password } = store.get("websocket");
@@ -82,12 +85,6 @@ twitchSubmitEl.addEventListener('click', () => {
   dialog.close();
 });
 
-connectToTwitch = async () => {
-  console.log('working');
-  
-
-}
-
 document.addEventListener("DOMContentLoaded", event => {
   twitchUserEl.value = savedTwitchUser;
   wsPort.value = port;
@@ -106,6 +103,8 @@ save = () => {
   }
 	snackbarContainer.MaterialSnackbar.showSnackbar(data)
 }
+
+/* OBS Section */
 
 connectObs = () => {
   const { port, password } = store.get("websocket")
@@ -149,8 +148,8 @@ disconnectObs = () => {
 	snackbarContainer.MaterialSnackbar.showSnackbar(data)
 	this.toggleConnected()
 }
-let isConnected = false;
 
+let isConnected = false;
 toggleConnected = () => {
   isConnected = !isConnected;
   if ( isConnected ) {
@@ -163,9 +162,20 @@ toggleConnected = () => {
 }
 
 
-getScenes = () => {
-  console.log('scenes', currentScenes);
+
+let isTwitchConnected = false;
+toggleTwitchConnected = () => {
+  isTwitchConnected = !isTwitchConnected;
+  if ( isTwitchConnected ) {
+    connectTwitchBtnEl.classList.add('hidden');
+    disconnectTwtichBtnEl.classList.remove('hidden');
+  } else {
+    connectTwitchBtnEl.classList.remove('hidden');
+    disconnectTwtichBtnEl.classList.add('hidden');
+  }
+
 }
+
 let visible = true;
   
 testScene = () => {
@@ -184,46 +194,34 @@ testScene = () => {
     ComfyJS.onReward = ( user, reward, cost, extra ) => {
       console.log( user + " redeemed " + reward + " for " + cost );
       if (reward === 'another test') {
-        toggleSpecifiedSource('Nintendo Switch', 'chims');
+        toggleSpecifiedSource(obsScenesElement.value, obsSourcesElement.value);
       }
     }
 
     ComfyJS.onChat = ( user, message, flags, self, extra ) => {
       console.log( user, message );
     }
-    // ComfyJS.onCommand = (user, command, message, flags, extra) => {
-		// 	if (command === "test") {
-		// 		console.log("!test was typed in chat")
-		// 	}
-		// }
-		// ComfyJS.Init("rubbertoe64", "7fvvukv9cl2oj8qfgp71x3jx61xyoy");
-    // ComfyJS.Init("rubbertoebot",'Dodger12', "7fvvukv9cl2oj8qfgp71x3jx61xyoy");
 
-    // ComfyJS.onCommand = (user, command, message, flags, extra) => {
-    //   if (command === "test") {
-    //     console.log("!test was typed in chat")
-    //   }
-    // }
-    // ComfyJS.onReward = (user, reward, cost, extra) => {
-    //   console.log(user + " redeemed " + reward + " for " + cost);
-    //   if ( reward === 'another test' ) {
-    //     visible = !visible
-    //     obs.sendCallback(
-    //       "SetSceneItemRender",
-    //       {
-    //         source: "electron-server",
-    //         render: visible,
-    //       },
-    //       (err, res) => {
-    //         console.log(res)
-    //       }
-    //     )
-    //   }
-		// }
-    console.log('twitch user', savedTwitchUser);
-    console.log('token', oauthToken);
-    ComfyJS.Init('rubbertoebot', `oauth:${oauthToken}`, [savedTwitchUser, 'TI_Felix']);
+    console.log(clientId, `oauth:${oauthToken}`);
+    ComfyJS.Init(savedTwitchUser, `${oauthToken}`, savedTwitchUser);
+    getRewards();
+    toggleTwitchConnected();
+  }
 
+  disconnectTwitch = () => {
+    console.log('Twitch Disconnected');
+    ComfyJS.Disconnect();
+    toggleTwitchConnected();
+  }
+  
+  getRewards = async () => {
+    let totalRewards = [];
+    let channelRewards = await ComfyJS.GetChannelRewards(clientId);
+    channelRewards.forEach(reward => {
+      totalRewards.push(reward.title);
+    })
+    setRewardsList(totalRewards);
+    console.log(channelRewards, true);
   }
 
   setScenesList = () => {
@@ -262,6 +260,18 @@ testScene = () => {
     })
   }
 
+  setRewardsList = (rewards) => {
+    rewardsElement.innerHTML = '';
+    rewards.forEach(reward => {
+      const optionEl = document.createElement("option");
+      optionEl.value = reward;
+      const text = document.createTextNode(reward);
+      // scene also has name of sources
+      optionEl.appendChild(text);
+      rewardsElement.appendChild(optionEl);
+    })
+  }
+
   onSceneSelectionChange = () => {
     const selectedValue = obsScenesElement.value;
     setSourceList(selectedValue);
@@ -275,20 +285,12 @@ testScene = () => {
   
   toggleSpecifiedSource = (scene, source) => {
     const key = `${scene}-${source}`;
-    const selectedSource = getSourcesMap(key);
+    const selectedSource = sourcesMap.get(key);
     let isRendered = selectedSource.render;
     isRendered = !isRendered;
     selectedSource.render = isRendered;
-    setSourcesMap(key, selectedSource);
+    sourcesMap.set(key, selectedSource);
     toggleSource(source, isRendered);
-  }
-  
-  getSourcesMap = ( key ) => {
-    return sourcesMap.get(key);
-  }
-
-  setSourcesMap = ( key, data ) => {
-    sourcesMap.set(key, data);
   }
   
   toggleSource = (source, toggled) => {
@@ -301,7 +303,7 @@ testScene = () => {
   }
 
   rubbertoeSourceToggling = () => {
-    if (getSourcesMap('Nintendo Switch-some sound').render) {
+    if (sourcesMap.get('Nintendo Switch-some sound').render) {
       toggleSource('some sound', false);
     }
     toggleSource('some sound', true);
@@ -313,6 +315,10 @@ testScene = () => {
 
   getToken = () => {
     shell.openExternal('https://twitchapps.com/tokengen/');
+  }
+
+  mapSourceReward = () => {
+    console.log('mapping');
   }
 
 
