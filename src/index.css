@@ -1,0 +1,48 @@
+body {
+  overflow: hidden;
+}
+
+.hidden {
+  display: none;
+}
+
+.column1 {
+  float: left;
+  width: 50%;
+  padding: 10px;
+}
+
+.column2 {
+  padding-left: 15px;
+}
+
+.row {
+  width: 100vw;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.sub-title {
+  font-size: 2rem;
+  padding: 10px;
+}
+
+.button-list {
+  margin-top: 20px;
+}
+
+.theme-switch-button {
+  position: absolute;
+  right: 30px;
+  top: 5px;
+}

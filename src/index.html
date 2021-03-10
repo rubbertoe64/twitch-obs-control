@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS Control</title>
+    <link rel="stylesheet" href="assets/css/light-theme.css" id="theme-link">
+    <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="index.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  </head>
+  <body>
+
+    <div class="row">
+      <div class="column1">
+
+        <div class="main-title">OBS Control</div>
+    
+    
+        <h5>OBS Websocket Settings</h5>
+        <!-- Numeric Textfield -->
+        <form action="#" onsubmit="return false">
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" id="twitch-user">
+            <label class="mdl-textfield__label" for="sample2">Twitch User</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" value="4444" id="websocket-port">
+            <label class="mdl-textfield__label" for="sample2">Port</label>
+            <span class="mdl-textfield__error">Input is not a number!</span>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="password" value="changeme" id="websocket-password">
+            <label class="mdl-textfield__label" for="sample3">Password</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" onclick="save()" id="save-button">
+              Save
+            </button>
+            <div class="mdl-tooltip" data-mdl-for="save-button">
+              Save twitch username and OBS Proxy settings to local storage
+            </div>
+          </div>
+        </form>
+        
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="connectObs()" id="obsConnect">
+          Connect OBS
+        </button>
+        <div class="mdl-tooltip" data-mdl-for="obsConnect">
+          Verify all proxy settings are correct and connect to your obs client
+        </div>
+        <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="disconnectObs()" id="obsDisconnect">
+          Disconnect
+        </button>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="getScenes()">
+          Get Scenes
+        </button>
+        
+      </div>
+      <div class="column2 scenes">
+        <div class="mid-column1">
+          <div class="sub-title">OBS Scenes</div>
+          <select name="scenes" id="scenes" onchange="onSceneSelectionChange()"></select>
+        </div>
+        <div class="mid-column2">
+          <div class="sub-title">OBS Sources</div>
+          <select name="sources" id="sources"></select>
+        </div>
+        <form action="#" onsubmit="return false">
+          <div class="button-list">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="console.log('added')">
+              Add to List
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="testToggleSource()">
+              Toggle
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="theme-switch-button">
+      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="theme-switch">
+        <input type="checkbox" id="theme-switch" class="mdl-switch__input">
+        <span class="mdl-switch__label"></span>
+      </label>
+    </div>
+
+    <div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
+      <div class="mdl-snackbar__text"></div>
+      <button class="mdl-snackbar__action" type="button"></button>
+    </div>
+
+  </body>
+  <script src="index.js"></script>
+  <script src="assets/js/theme-switcher.js"></script>
+
+</html>
