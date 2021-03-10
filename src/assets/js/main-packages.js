@@ -1,0 +1,12 @@
+const express = require('express');
+const path = require("path");
+const OBSWebSocket = require("obs-websocket-js");
+const { disconnect } = require('process');
+const Store = require('./assets/js/store.js');
+const {RefreshableAuthProvider, StaticAuthProvider} = require('twitch-auth');
+const { promises } = require('fs');
+const fs = promises;
+const { PubSubClient } = require('twitch-pubsub-client');
+const { ApiClient } = require('twitch');
+const { PubSubSubscriptionMessage } = require('twitch-pubsub-client');
+const shell = require('electron').shell;

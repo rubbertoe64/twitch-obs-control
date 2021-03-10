@@ -54,27 +54,27 @@
         <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="disconnectObs()" id="obsDisconnect">
           Disconnect
         </button>
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="getScenes()">
-          Get Scenes
+        <button id="show-dialog" type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+          Twitch API Settings
         </button>
         
       </div>
       <div class="column2 scenes">
         <div class="mid-column1">
           <div class="sub-title">OBS Scenes</div>
-          <select name="scenes" id="scenes" onchange="onSceneSelectionChange()"></select>
+          <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()"></select>
         </div>
         <div class="mid-column2">
           <div class="sub-title">OBS Sources</div>
-          <select name="sources" id="sources"></select>
+          <select name="sources" class="mdl-textfield__input" id="sources"></select>
         </div>
         <form action="#" onsubmit="return false">
           <div class="button-list">
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="console.log('added')">
               Add to List
             </button>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="testToggleSource()">
-              Toggle
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="connectToTwitch()">
+              Connect Twitch
             </button>
           </div>
         </form>
@@ -93,7 +93,35 @@
       <button class="mdl-snackbar__action" type="button"></button>
     </div>
 
+  <dialog class="mdl-dialog">
+    <h4 class="mdl-dialog__title">Twitch API Client Data</h4>
+    <div class="mdl-dialog__content">
+      <div class="mdl-textfield mdl-js-textfield">
+        <input class="mdl-textfield__input" type="text" id="twitch-api-client-id-input">
+        <label class="mdl-textfield__label" for="sample2">Client ID</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield">
+        <input class="mdl-textfield__input" type="text" id="twitch-api-client-secret-input">
+        <label class="mdl-textfield__label" for="sample2">Client Secret</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield">
+        <input class="mdl-textfield__input" type="text" id="twitch-oauth-input">
+        <label class="mdl-textfield__label" for="sample2">OAuth Token</label>
+      </div>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored close" id="twitch-api-cancel">Cancel</button>
+      <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="twitch-api-save">Save</button>
+      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="getToken()">
+        Get Token
+      </button>
+    </div>
+    <div class="small-text">Scopes:</div>
+    <div class="small-text-red">channel:read:redemptions user:read:email chat:edit chat:read</div>
+  </dialog>
+
   </body>
+  <script src="assets/js/main-packages.js"></script>
   <script src="index.js"></script>
   <script src="assets/js/theme-switcher.js"></script>
 

@@ -49,7 +49,11 @@
     "comfy.js": "^1.1.5",
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.17.1",
-    "obs-websocket-js": "^4.0.2"
+    "obs-websocket-js": "^4.0.2",
+    "twitch": "^4.5.0",
+    "twitch-auth": "^4.5.0",
+    "twitch-pubsub-client": "^4.5.0",
+    "twitch-webhooks": "^4.5.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",

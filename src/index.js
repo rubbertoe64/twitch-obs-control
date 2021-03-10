@@ -1,11 +1,3 @@
-const express = require('express');
-const path = require("path");
-
-const Store = require('./assets/js/store.js');
-const OBSWebSocket = require("obs-websocket-js");
-const { disconnect } = require('process');
-const ComfyJS = require("comfy.js")
-
 const app = express();
 const obs = new OBSWebSocket();
 
@@ -35,6 +27,19 @@ const store = new Store({
   }
 });
 
+const twitchApiStore = new Store({
+  configName: 'twitch-api',
+  defaults: {
+      'twitch-config': {
+          clientId: '',
+          clientSecret: '',
+          oauthToken: ''
+      }
+  }
+});
+
+
+
 const twitchUserEl = document.getElementById("twitch-user");
 const wsPort = document.getElementById("websocket-port")
 const wsPass = document.getElementById("websocket-password")
@@ -43,16 +48,51 @@ const obsConnectBut = document.getElementById("obsConnect");
 const obsDisconnectBut = document.getElementById("obsDisconnect");
 const obsScenesElement = document.getElementById('scenes');
 const obsSourcesElement = document.getElementById('sources');
-
+const dialog = document.querySelector('dialog');
+const showDialogButton = document.querySelector('#show-dialog');
+const twitchSubmitEl = document.getElementById('twitch-api-save');
+const clientIdEl = document.getElementById('twitch-api-client-id-input');
+const clientSecretEl = document.getElementById('twitch-api-client-secret-input');
+const oauthTokenEl = document.getElementById('twitch-oauth-input');
 
 
 let { port, password } = store.get("websocket");
 let savedTwitchUser = store.get('twitch-user');
+let { clientId, clientSecret, oauthToken } = twitchApiStore.get('twitch-config');
+
+if (! dialog.showModal) {
+  dialogPolyfill.registerDialog(dialog);
+}
+showDialogButton.addEventListener('click', function() {
+  dialog.showModal();
+});
+dialog.querySelector('.close').addEventListener('click', function() {
+  dialog.close();
+});
+
+twitchSubmitEl.addEventListener('click', () => {
+  const apiConfig = {
+    clientId: clientIdEl.value,
+    clientSecret: clientSecretEl.value,
+    oauthToken: oauthTokenEl.value
+  }
+  twitchApiStore.set('twitch-config', apiConfig);
+  dialog.close();
+});
+
+connectToTwitch = async () => {
+  console.log('working');
+  
+
+}
 
 document.addEventListener("DOMContentLoaded", event => {
   twitchUserEl.value = savedTwitchUser;
   wsPort.value = port;
   wsPass.value = password;
+  clientIdEl.value = clientId;
+  clientSecretEl.value = clientSecret;
+  oauthTokenEl.value = oauthToken;
 })
 
 save = () => {
@@ -197,7 +237,6 @@ testScene = () => {
   setSourceList = (scene) => {
     obsSourcesElement.innerHTML = '';
     const selectedScene = sceneMap.get(scene);
-    console.log(selectedScene);
     const selectedSources = selectedScene.sources;
     selectedSources.forEach(source => {
       const optionEl = document.createElement("option");
@@ -258,6 +297,10 @@ testScene = () => {
     }, 5000);
   }
 
+  getToken = () => {
+    shell.openExternal('https://twitchapps.com/tokengen/');
+  }
+
 
 
   /** TODO 
@@ -273,6 +316,5 @@ testScene = () => {
    * 
    */
 
-  module.exports = store;
 
 
