@@ -1,4 +1,3 @@
-const express = require('express');
 const path = require("path");
 const OBSWebSocket = require("obs-websocket-js");
 const { disconnect } = require('process');

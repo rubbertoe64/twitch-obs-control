@@ -1,21 +1,9 @@
 
-
-const app = express();
 const obs = new OBSWebSocket();
 
 let currentScenes;
 let sceneMap = new Map();
 let sourcesMap = new Map();
-
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World</h1>');
-})
-
-app.use(express.static(path.join(__dirname, 'assets')));
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`) );
 
 const store = new Store({
   configName: 'obs-proxy-settings',
