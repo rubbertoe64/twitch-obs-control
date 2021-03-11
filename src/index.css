@@ -38,6 +38,11 @@ body {
   padding: 10px;
 }
 
+.sub-title2 {
+  font-size: 1.5rem;
+  padding: 8px;
+}
+
 .button-list {
   margin-top: 20px;
 }

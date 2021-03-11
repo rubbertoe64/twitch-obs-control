@@ -24,11 +24,11 @@
         <form action="#" onsubmit="return false">
           <div class="mdl-textfield mdl-js-textfield">
             <input class="mdl-textfield__input" type="text" id="twitch-user">
-            <label class="mdl-textfield__label" for="sample2">Twitch User</label>
+            <label class="mdl-textfield__label" for="twitch-user">Twitch User</label>
           </div>
           <div class="mdl-textfield mdl-js-textfield">
             <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" value="4444" id="websocket-port">
-            <label class="mdl-textfield__label" for="sample2">Port</label>
+            <label class="mdl-textfield__label" for="websocket-port">Port</label>
             <span class="mdl-textfield__error">Input is not a number!</span>
           </div>
           <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -60,17 +60,29 @@
         
       </div>
       <div class="column2 scenes">
+        <div class="mid-column2">
+          <div class="sub-title">Rewards List</div>
+          <select name="rewards" class="mdl-textfield__input" id="rewards"></select>
+        </div>
         <div class="mid-column1">
           <div class="sub-title">OBS Scenes</div>
           <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()"></select>
         </div>
         <div class="mid-column2">
           <div class="sub-title">OBS Sources</div>
-          <select name="sources" class="mdl-textfield__input" id="sources"></select>
+          <select name="sources" class="mdl-textfield__input" id="sources" onchange="onSourceSelectionChange()"></select>
         </div>
         <div class="mid-column2">
-          <div class="sub-title">Rewards List</div>
-          <select name="sources" class="mdl-textfield__input" id="rewards"></select>
+          <div class="sub-title2" id="time-title">Timed? (Sec)</div>
+          <div class="mdl-tooltip" data-mdl-for="time-title">
+            Sets a timer for duration of source toggle. Set 0 if you want to just toggle on and off.
+            Set the number of seconds the media is.
+          </div>
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$" value="0" id="time-input">
+            <label class="mdl-textfield__label" for="time-input">Timed?</label>
+            <span class="mdl-textfield__error">Input is not an acceptable number!</span>
+          </div>
         </div>
         <form action="#" onsubmit="return false">
           <div class="button-list">
@@ -83,9 +95,37 @@
             <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="disconnectTwitch()" id="disconnect-twitch-btn">
               Disconnect Twitch
             </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="testToggleSource()">
+              Test Toggle
+            </button>
           </div>
         </form>
       </div>
+    </div>
+    <div class="reward-points-list">
+      <ul class="mdl-list" id="points-source-list">
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content">
+            Bryan Cranston
+          </span>
+          <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons mat-pencil">create</i></a>
+          <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content">
+            Aaron Paul
+          </span>
+          <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons mat-pencil">create</i></a>
+          <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content">
+            Bob Odenkirk
+          </span>
+          <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons mat-pencil">create</i></a>
+          <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>
+        </li>
+      </ul>
     </div>
 
     <div class="theme-switch-button">
@@ -105,15 +145,15 @@
     <div class="mdl-dialog__content">
       <div class="mdl-textfield mdl-js-textfield">
         <input class="mdl-textfield__input" type="text" id="twitch-api-client-id-input">
-        <label class="mdl-textfield__label" for="sample2">Client ID</label>
+        <label class="mdl-textfield__label" for="twitch-api-client-id-input">Client ID</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield">
         <input class="mdl-textfield__input" type="text" id="twitch-api-client-secret-input">
-        <label class="mdl-textfield__label" for="sample2">Client Secret</label>
+        <label class="mdl-textfield__label" for="twitch-api-client-secret-input">Client Secret</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield">
         <input class="mdl-textfield__input" type="text" id="twitch-oauth-input">
-        <label class="mdl-textfield__label" for="sample2">OAuth Token</label>
+        <label class="mdl-textfield__label" for="twitch-oauth-input">OAuth Token</label>
       </div>
     </div>
     <div class="mdl-dialog__actions">

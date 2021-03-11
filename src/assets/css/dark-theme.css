@@ -12,6 +12,10 @@ body {
   color: rgba(255, 255, 255, 0.5) !important;
 }
 
+.mdl-list__item-primary-content {
+  color: white !important;
+}
+
 dialog {
   background-color: rgb(86, 86, 86);
   color: white;
@@ -19,4 +23,9 @@ dialog {
 
 option {
   color: black;
+}
+
+.reward-points-list {
+  color: white !important;
+  border: 1px white solid;
 }

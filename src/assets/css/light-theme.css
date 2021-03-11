@@ -1,3 +1,7 @@
 body {
   color: black;
 }
+
+.reward-points-list {
+  border: 1px black solid;
+}
