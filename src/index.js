@@ -1,4 +1,3 @@
-
 const obs = new OBSWebSocket();
 
 let currentScenes;
@@ -87,6 +86,7 @@ document.addEventListener("DOMContentLoaded", event => {
   clientIdEl.value = clientId;
   clientSecretEl.value = clientSecret;
   oauthTokenEl.value = oauthToken;
+  setRewardPointsList(getPointsSourceMap());
 })
 
 save = () => {
@@ -171,6 +171,15 @@ toggleTwitchConnected = () => {
 
 }
 
+ComfyJS.onConnected = () => {
+  const data = {
+		message: "👍🏼 Twitch Connected Successfully ",
+		timeout: 2000
+  }
+	snackbarContainer.MaterialSnackbar.showSnackbar(data)
+}
+
+
 connectTwitch = async () => {
   ComfyJS.Init(savedTwitchUser, `${oauthToken}`, savedTwitchUser);
   getRewards();
@@ -179,8 +188,12 @@ connectTwitch = async () => {
 }
 
 disconnectTwitch = () => {
-  console.log('Twitch Disconnected');
   ComfyJS.Disconnect();
+  const data = {
+		message: "👋🏼 Twitch Disconnected Successfully 👋🏼",
+		timeout: 2000
+  }
+	snackbarContainer.MaterialSnackbar.showSnackbar(data)
   toggleTwitchConnected();
 }
 
@@ -237,7 +250,16 @@ getPointsSourceMap = () => {
 
 setPointsSourceMap = (map) => {
   pointsSourceToggleStore.set('points-source', JSON.stringify(Array.from(map.entries())));
-  console.log('pointsSourceToggleStore', pointsSourceToggleStore);
+  setRewardPointsList(getPointsSourceMap());
+}
+
+clearPointsSourceMap = () => {
+  pointsSourceToggleStore.set('points-source', new Map());
+  setRewardPointsList(getPointsSourceMap());
+}
+
+removeFromPointsSourceMap = () => {
+  
 }
 
 /* Setting Scenes */
@@ -289,6 +311,28 @@ setScenesList = () => {
     })
   }
 
+  setRewardPointsList = (rewardPoints) => {
+    pointsSourceListEl.innerHTML = '';
+    for (const [key, val] of rewardPoints) {
+      let listItem = `<li class="mdl-list__item">
+      <span class="mdl-list__item-primary-content">
+        ${key} <-----> ${val.scene} --> ${val.source} : seconds (${val.time/1000 === 0 ? 0 : (val.time/1000) -1})
+      </span>
+      <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>
+      </li>`;
+      const p = document.createElement('p');
+      p.innerHTML = listItem;
+      pointsSourceListEl.appendChild(p.childNodes[0]);
+      console.log(key, val);
+    }
+  }
+
+  stringToElem = (text, ) => {
+    
+  }
+
+  /* End Set Scenes */
+
   onSceneSelectionChange = () => {
     const selectedSceneValue = obsScenesElement.value;
     setSourceList(selectedSceneValue);
@@ -303,9 +347,11 @@ setScenesList = () => {
 
   testToggleSource = () => {
     console.log('map', getPointsSourceMap());
-    const sceneVal = obsScenesElement.value;
-    const sourceVal = obsSourcesElement.value;
-    timedToggleSource(sceneVal, sourceVal, 3000);
+    clearPointsSourceMap();
+    // const sceneVal = obsScenesElement.value;
+    // const sourceVal = obsSourcesElement.value;
+    // timedToggleSource(sceneVal, sourceVal, 3000);
+
   }
   
   toggleSpecifiedSource = (scene, source) => {
