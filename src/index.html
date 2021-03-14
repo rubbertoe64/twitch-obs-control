@@ -59,26 +59,28 @@
         </button>
         
       </div>
-      <div class="column2 scenes">
-        <div class="mid-column2">
-          <div class="sub-title">Rewards List</div>
-          <select name="rewards" class="mdl-textfield__input" id="rewards">
-            <option value="not-connected">Twitch Not Connected</option>
-          </select>
+      <div class="right-side">
+        <div class="column2 scenes">
+          <div class="mid-column2">
+            <div class="sub-title">Rewards List</div>
+            <select name="rewards" class="mdl-textfield__input" id="rewards">
+              <option value="not-connected">Twitch Not Connected</option>
+            </select>
+          </div>
+          <div class="mid-column1">
+            <div class="sub-title">OBS Scenes</div>
+            <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()">
+              <option value="not-connected">OBS Not Connected</option>
+            </select>
+          </div>
+          <div class="mid-column2">
+            <div class="sub-title">OBS Sources</div>
+            <select name="sources" class="mdl-textfield__input" id="sources" onchange="onSourceSelectionChange()">
+              <option value="not-connected">OBS Not Connected</option>
+            </select>
+          </div>
         </div>
-        <div class="mid-column1">
-          <div class="sub-title">OBS Scenes</div>
-          <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()">
-            <option value="not-connected">OBS Not Connected</option>
-          </select>
-        </div>
-        <div class="mid-column2">
-          <div class="sub-title">OBS Sources</div>
-          <select name="sources" class="mdl-textfield__input" id="sources" onchange="onSourceSelectionChange()">
-            <option value="not-connected">OBS Not Connected</option>
-          </select>
-        </div>
-        <div class="mid-column3">
+        <div class="advanced-options">
           <div class="sub-title2" id="time-title">Timed? (Sec)</div>
           <div class="mdl-tooltip" data-mdl-for="time-title">
             Sets a timer for duration of source toggle. Set 0 if you want to just toggle on and off.
@@ -89,24 +91,32 @@
             <label class="mdl-textfield__label" for="time-input">Timed?</label>
             <span class="mdl-textfield__error">Input is not an acceptable number!</span>
           </div>
-        </div>
-        <form action="#" onsubmit="return false">
-          <div class="button-list">
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="mapSourceReward()">
-              Add to List
-            </button>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="connectTwitch()" id="connect-twitch-btn">
-              Connect Twitch
-            </button>
-            <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="disconnectTwitch()" id="disconnect-twitch-btn">
-              Disconnect Twitch
-            </button>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="testToggleSource()">
-              Test Toggle
-            </button>
+          <div class="sub-title2" id="group-title">Group</div>
+          <div class="mdl-tooltip" data-mdl-for="group-title">
+            Add scene to group that will toggle off all in that group and only turn on specified scene.
           </div>
-        </form>
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" value="None" id="group-input">
+            <label class="mdl-textfield__label" for="group-input">Group</label>
+          </div>
+        </div>
       </div>
+      <form action="#" onsubmit="return false">
+        <div class="button-list">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="mapSourceReward()">
+            Add to List
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="connectTwitch()" id="connect-twitch-btn">
+            Connect Twitch
+          </button>
+          <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="disconnectTwitch()" id="disconnect-twitch-btn">
+            Disconnect Twitch
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="testToggleSource()">
+            Clear List
+          </button>
+        </div>
+      </form>
     </div>
     <div class="reward-points-list">
       <!-- <ul class="mdl-list" id="points-source-list">

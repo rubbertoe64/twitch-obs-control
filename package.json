@@ -25,7 +25,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "OBS Source Toggler"
+            "name": "OBS-Source-Toggler"
           }
         },
         {

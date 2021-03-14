@@ -56,3 +56,12 @@ body {
 .data-table-middle {
   text-align: center !important;
 }
+
+.right-side {
+  display: flex;
+}
+
+.advanced-options {
+  padding-top: 20px;
+  margin-left: 35px;
+}

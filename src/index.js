@@ -3,6 +3,7 @@ const obs = new OBSWebSocket();
 let currentScenes;
 let sceneMap = new Map();
 let sourcesMap = new Map();
+let groupMap = new Map();
 
 const store = new Store({
   configName: 'obs-proxy-settings',
@@ -33,6 +34,12 @@ const pointsSourceToggleStore = new Store({
   }
 });
 
+const sourceGroupStore = new Store({
+  configName: 'source-group',
+  defaults: {
+    group: JSON.stringify(new Map())
+  }
+});
 
 const twitchUserEl = document.getElementById("twitch-user");
 const wsPort = document.getElementById("websocket-port")
@@ -44,6 +51,7 @@ const obsDisconnectBut = document.getElementById("obsDisconnect");
 const obsScenesElement = document.getElementById('scenes');
 const obsSourcesElement = document.getElementById('sources');
 const timedElement = document.getElementById('time-input');
+const groupElement = document.getElementById('group-input');
 const dialog = document.querySelector('dialog');
 const showDialogButton = document.querySelector('#show-dialog');
 const twitchSaveDialogEl = document.getElementById('twitch-api-save');
@@ -198,26 +206,44 @@ disconnectTwitch = () => {
 }
 
 getRewards = async () => {
-  let totalRewards = [];
   let channelRewards = await ComfyJS.GetChannelRewards(clientId);
   setRewardsList(channelRewards);
 }
   
 startTwitchListener = () => {
   ComfyJS.onReward = ( user, reward, cost, extra ) => {
-    console.log( user + " redeemed " + reward );
     let currentPointsSourceMap = getPointsSourceMap();
     if ( currentPointsSourceMap.has(reward) ) {
       const currentSceneSource = currentPointsSourceMap.get(reward);
       if (currentSceneSource) {
-        if (currentSceneSource.time === 0) {
-          toggleSpecifiedSource(currentSceneSource.scene, currentSceneSource.source);
+        const group = currentSceneSource.group;
+        if (group === 'None') {
+          if (currentSceneSource.time === 0) {
+            toggleSpecifiedSource(currentSceneSource.source);
+          } else {
+            timedToggleSource(currentSceneSource.source, currentSceneSource.time)
+          }
         } else {
-          timedToggleSource(currentSceneSource.scene, currentSceneSource.source, currentSceneSource.time)
+          toggleGroup(group, reward);
         }
       }
     }
   }
+}
+
+toggleGroup = (group, reward) => {
+  let currentPointsSourceMap = getPointsSourceMap();
+  const currentGroupMap = getStoreMap(sourceGroupStore, 'source-group');
+  const groupArray = JSON.parse(currentGroupMap.get(group));
+  groupArray.forEach( item => {
+    const currentSceneSource = currentPointsSourceMap.get(item);
+    if ( item !== reward ) {
+      toggleOffSpecifiedSource( currentSceneSource.source);
+    } else {
+      toggleSpecifiedSource(currentSceneSource.source);
+    }
+  });
+
 }
 
 mapSourceReward = () => {
@@ -226,9 +252,10 @@ mapSourceReward = () => {
   const sourceVal = obsSourcesElement.value;
   const numVal = parseInt(timedElement.value) * 1000;
   const timedVal = numVal === 0 ? 0 : numVal + 1000;
+  const groupVal = groupElement.value ? groupElement.value : 'None';
   if (currentReward && sceneVal && sourceVal && currentReward !== 'not-connected' && sceneVal !== 'not-connected' && sourceVal !== 'not-connected' ) {
     let currentPointsSourceMap = getPointsSourceMap();
-    currentPointsSourceMap.set(currentReward, {scene: sceneVal, source: sourceVal, time: timedVal});
+    currentPointsSourceMap.set(currentReward, {scene: sceneVal, source: sourceVal, time: timedVal, group: groupVal});
     setPointsSourceMap(currentPointsSourceMap);
   } else {
     const data = {
@@ -239,8 +266,23 @@ mapSourceReward = () => {
   }
 }
 
+removeSingleSourceReward = key => {
+  let currentPointsSourceMap = getPointsSourceMap();
+  currentPointsSourceMap.delete(key);
+  setPointsSourceMap(currentPointsSourceMap);
+}
+
 getPointsSourceMap = () => {
-  const currentPointsSource = pointsSourceToggleStore.get('points-source');
+  return getStoreMap(pointsSourceToggleStore, 'points-source');
+}
+
+setPointsSourceMap = (map) => {
+  setStoreMap(pointsSourceToggleStore, 'points-source', map);
+  setRewardPointsList(getPointsSourceMap());
+}
+
+getStoreMap = (store, key) => {
+  const currentPointsSource = store.get(key);
   if (currentPointsSource && Object.keys(currentPointsSource).length > 0 && currentPointsSource !== '{}') {
     return new Map(JSON.parse(currentPointsSource));
   } else {
@@ -248,9 +290,26 @@ getPointsSourceMap = () => {
   }
 }
 
-setPointsSourceMap = (map) => {
-  pointsSourceToggleStore.set('points-source', JSON.stringify(Array.from(map.entries())));
-  setRewardPointsList(getPointsSourceMap());
+setStoreMap = (store, key, map) => {
+  store.set(key, JSON.stringify(Array.from(map.entries())));
+}
+
+setGroupStoreMapping  = () => {
+  setStoreMap(sourceGroupStore, 'source-group', new Map());
+  const currentMap = getPointsSourceMap();
+  currentMap.forEach((val, key) => {
+    const groupVal = val.group;
+    if (groupVal !== 'None') {
+      const currentGroupMap =  getStoreMap(sourceGroupStore, 'source-group');
+      let currentSet = new Set();
+      if (currentGroupMap.has(groupVal)) {
+        currentSet = new Set(JSON.parse( currentGroupMap.get(groupVal) ));
+      } 
+      currentSet.add(key);
+      currentGroupMap.set(groupVal, JSON.stringify(Array.from( currentSet )));
+      setStoreMap(sourceGroupStore, 'source-group', currentGroupMap);
+    }
+  });
 }
 
 clearPointsSourceMap = () => {
@@ -258,8 +317,8 @@ clearPointsSourceMap = () => {
   setRewardPointsList(getPointsSourceMap());
 }
 
-removeFromPointsSourceMap = () => {
-  
+clearGroupMap = () => {
+  sourceGroupStore.set('source-group', new Map());
 }
 
 /* Setting Scenes */
@@ -279,7 +338,7 @@ setScenesList = () => {
     optionEl.appendChild(text);
     obsScenesElement.appendChild(optionEl);
     scene.sources.forEach(source => {
-      sourcesMap.set(`${scene.name}-${source.name}`, source);
+      sourcesMap.set(source.name, source);
     })
   });
   setSourceList(firstScene);
@@ -321,28 +380,41 @@ setScenesList = () => {
         <th class="data-table-middle">Seconds</th>
         <th class="mdl-data-table__cell--non-numeric">Group</th>
         <th></th>
+        <th></th>
       </tr>
     </thead>`;
     const tbodyEl = document.createElement('tbody');
     for (const [key, val] of rewardPoints) {
       const trEl = document.createElement('tr');
       let listItem = `
-        <td class="mdl-data-table__cell--non-numeric">${key}</td>
+        <td class="mdl-data-table__cell--non-numeric reward">${key}</td>
         <td class="mdl-data-table__cell--non-numeric">${val.scene}</td>
         <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
         <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time/1000) -1}</td>
-        <td class="mdl-data-table__cell--non-numeric">None</td>
-        <td><i class="material-icons">delete</i></td>`;
+        <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
+        <td><i class="material-icons" onclick="editRow(this)">create</i></td>
+        <td><i class="material-icons" onclick="removeRow(this)">delete</i></td>`;
       trEl.innerHTML = listItem;
       tbodyEl.appendChild(trEl);
-      console.log(key, val);
     }
     // pointsSourceListEl.appendChild(p.childNodes[0]);
     pointsSourceListEl.appendChild(tbodyEl);
+    setGroupStoreMapping();
   }
 
-  stringToElem = (text, ) => {
-    
+  editRow = row => {
+    const reward = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
+    const scene = row.parentNode.parentNode.childNodes[2].nextSibling.innerHTML;
+    const source = row.parentNode.parentNode.childNodes[4].nextSibling.innerHTML;
+    const time = row.parentNode.parentNode.childNodes[6].nextSibling.innerHTML;
+    const group = row.parentNode.parentNode.childNodes[8].nextSibling.innerHTML;
+    console.table({reward, scene, source, time, group});
+  }
+
+  removeRow = row => {
+    const currentReward = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
+    console.log(currentReward);
+    removeSingleSourceReward(currentReward)
   }
 
   /* End Set Scenes */
@@ -354,22 +426,18 @@ setScenesList = () => {
 
   onSourceSelectionChange = () => {
     const selectedSourceValue = obsSourcesElement.value;
-    console.log('source selected', selectedSourceValue);
   }
 
   /* OBS Toggling */
 
   testToggleSource = () => {
-    console.log('map', getPointsSourceMap());
     clearPointsSourceMap();
-    // const sceneVal = obsScenesElement.value;
-    // const sourceVal = obsSourcesElement.value;
-    // timedToggleSource(sceneVal, sourceVal, 3000);
+    clearGroupMap();
 
   }
   
-  toggleSpecifiedSource = (scene, source) => {
-    const key = `${scene}-${source}`;
+  toggleSpecifiedSource = source => {
+    const key = source;
     const selectedSource = sourcesMap.get(key);
     let isRendered = selectedSource.render;
     isRendered = !isRendered;
@@ -378,6 +446,23 @@ setScenesList = () => {
     toggleSource(source, isRendered);
   }
   
+  toggleOffSpecifiedSource = source => {
+    const selectedSource = sourcesMap.get(source);
+    let isRendered = false;
+    selectedSource.render = isRendered;
+    sourcesMap.set(source, selectedSource);
+    toggleSource(source, isRendered);
+  }
+  
+  toggleOnSpecifiedSource = source => {
+    const key = source;
+    const selectedSource = sourcesMap.get(key);
+    let isRendered = true;
+    selectedSource.render = isRendered;
+    sourcesMap.set(key, selectedSource);
+    toggleSource(source, isRendered);
+  }
+
   toggleSource = (source, toggled) => {
     obs.sendCallback('SetSceneItemRender', {
       source: source,
@@ -387,8 +472,8 @@ setScenesList = () => {
     })
   }
 
-  timedToggleSource = (scene, source, time) => {
-    const key = `${scene}-${source}`;
+  timedToggleSource = (source, time) => {
+    const key = source;
     const selectedSource = sourcesMap.get(key);
     toggleSource(source, false);
     setTimeout(() => {
@@ -397,17 +482,6 @@ setScenesList = () => {
     }, 500);
     selectedSource.render = false;
     sourcesMap.set(key, selectedSource);
-  }
-
-  rubbertoeSourceToggling = () => {
-    if (sourcesMap.get('Nintendo Switch-some sound').render) {
-      toggleSource('some sound', false);
-    }
-    toggleSource('some sound', true);
-    setTimeout(() => toggleSource('some sound', false), 4000);
-    setInterval(() => {
-      console.log('looping');
-    }, 5000);
   }
 
   getToken = () => {
