@@ -62,15 +62,21 @@
       <div class="column2 scenes">
         <div class="mid-column2">
           <div class="sub-title">Rewards List</div>
-          <select name="rewards" class="mdl-textfield__input" id="rewards"></select>
+          <select name="rewards" class="mdl-textfield__input" id="rewards">
+            <option value="not-connected">Twitch Not Connected</option>
+          </select>
         </div>
         <div class="mid-column1">
           <div class="sub-title">OBS Scenes</div>
-          <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()"></select>
+          <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()">
+            <option value="not-connected">OBS Not Connected</option>
+          </select>
         </div>
         <div class="mid-column2">
           <div class="sub-title">OBS Sources</div>
-          <select name="sources" class="mdl-textfield__input" id="sources" onchange="onSourceSelectionChange()"></select>
+          <select name="sources" class="mdl-textfield__input" id="sources" onchange="onSourceSelectionChange()">
+            <option value="not-connected">OBS Not Connected</option>
+          </select>
         </div>
         <div class="mid-column3">
           <div class="sub-title2" id="time-title">Timed? (Sec)</div>

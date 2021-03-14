@@ -226,14 +226,14 @@ mapSourceReward = () => {
   const sourceVal = obsSourcesElement.value;
   const numVal = parseInt(timedElement.value) * 1000;
   const timedVal = numVal === 0 ? 0 : numVal + 1000;
-  if (currentReward && sceneVal && sourceVal) {
+  if (currentReward && sceneVal && sourceVal && currentReward !== 'not-connected' && sceneVal !== 'not-connected' && sourceVal !== 'not-connected' ) {
     let currentPointsSourceMap = getPointsSourceMap();
     currentPointsSourceMap.set(currentReward, {scene: sceneVal, source: sourceVal, time: timedVal});
     setPointsSourceMap(currentPointsSourceMap);
   } else {
     const data = {
       message: "🛑 Please make sure all services are connected 🛑",
-      timeout: 2000,
+      timeout: 4000,
     }
     snackbarContainer.MaterialSnackbar.showSnackbar(data)
   }
