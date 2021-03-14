@@ -47,3 +47,12 @@ body {
 .mat-pencil {
   padding-right: 10px;
 }
+
+.list-table-props {
+  width: 100%;
+  color: black;
+}
+
+.data-table-middle {
+  text-align: center !important;
+}

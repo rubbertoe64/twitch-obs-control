@@ -52,3 +52,7 @@ body {
   right: 30px;
   top: 5px;
 }
+
+.mdl-data-table th {
+  color: black;
+}

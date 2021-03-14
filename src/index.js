@@ -9,7 +9,7 @@ const store = new Store({
   defaults: {
     websocket: {
       port: 4444,
-      password: 'changeme'
+      password: ''
     },
     'twitch-user': ''
   }
@@ -312,19 +312,33 @@ setScenesList = () => {
   }
 
   setRewardPointsList = (rewardPoints) => {
-    pointsSourceListEl.innerHTML = '';
+    pointsSourceListEl.innerHTML = `
+    <thead>
+      <tr>
+        <th class="mdl-data-table__cell--non-numeric">Reward</th>
+        <th class="mdl-data-table__cell--non-numeric">Scene</th>
+        <th class="mdl-data-table__cell--non-numeric">Source</th>
+        <th class="data-table-middle">Seconds</th>
+        <th class="mdl-data-table__cell--non-numeric">Group</th>
+        <th></th>
+      </tr>
+    </thead>`;
+    const tbodyEl = document.createElement('tbody');
     for (const [key, val] of rewardPoints) {
-      let listItem = `<li class="mdl-list__item">
-      <span class="mdl-list__item-primary-content">
-        ${key} <-----> ${val.scene} --> ${val.source} : seconds (${val.time/1000 === 0 ? 0 : (val.time/1000) -1})
-      </span>
-      <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>
-      </li>`;
-      const p = document.createElement('p');
-      p.innerHTML = listItem;
-      pointsSourceListEl.appendChild(p.childNodes[0]);
+      const trEl = document.createElement('tr');
+      let listItem = `
+        <td class="mdl-data-table__cell--non-numeric">${key}</td>
+        <td class="mdl-data-table__cell--non-numeric">${val.scene}</td>
+        <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
+        <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time/1000) -1}</td>
+        <td class="mdl-data-table__cell--non-numeric">None</td>
+        <td><i class="material-icons">delete</i></td>`;
+      trEl.innerHTML = listItem;
+      tbodyEl.appendChild(trEl);
       console.log(key, val);
     }
+    // pointsSourceListEl.appendChild(p.childNodes[0]);
+    pointsSourceListEl.appendChild(tbodyEl);
   }
 
   stringToElem = (text, ) => {

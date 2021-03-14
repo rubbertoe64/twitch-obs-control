@@ -29,3 +29,19 @@ option {
   color: white !important;
   border: 1px white solid;
 }
+
+.list-table-props {
+  color: #ffffff9e !important;
+}
+
+.mdl-data-table {
+  background-color: #2b2b2b !important;
+}
+
+.mdl-data-table th {
+  color: white !important;
+}
+
+.mdl-data-table tbody tr:hover {
+  background-color: #eeeeee14 !important;
+}
