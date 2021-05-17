@@ -10,6 +10,22 @@ body {
 
 .reward-points-list {
   margin: 0 30px;
+  height: 215px;
+  display: block;
+  overflow-y: scroll;
+  
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  overflow-y: scroll;
+  background: rgb(32, 32, 32);
+  box-shadow: inset 0 0 4px rgb(32, 32, 32);
+}
+
+::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 10px;
 }
 
 .mdl-textfield__input {

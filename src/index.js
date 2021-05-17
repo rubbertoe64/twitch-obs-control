@@ -1,9 +1,11 @@
+// const ExpressServer = require('./assets/js/server');
 const obs = new OBSWebSocket();
 
 let currentScenes;
 let sceneMap = new Map();
 let sourcesMap = new Map();
 let groupMap = new Map();
+
 
 const store = new Store({
   configName: 'obs-proxy-settings',
@@ -56,7 +58,7 @@ const dialog = document.querySelector('dialog');
 const showDialogButton = document.querySelector('#show-dialog');
 const twitchSaveDialogEl = document.getElementById('twitch-api-save');
 const clientIdEl = document.getElementById('twitch-api-client-id-input');
-const clientSecretEl = document.getElementById('twitch-api-client-secret-input');
+// const clientSecretEl = document.getElementById('twitch-api-client-secret-input');
 const oauthTokenEl = document.getElementById('twitch-oauth-input');
 const connectTwitchBtnEl = document.getElementById('connect-twitch-btn');
 const disconnectTwtichBtnEl = document.getElementById('disconnect-twitch-btn');
@@ -80,7 +82,7 @@ dialog.querySelector('.close').addEventListener('click', function() {
 twitchSaveDialogEl.addEventListener('click', () => {
   const apiConfig = {
     clientId: clientIdEl.value,
-    clientSecret: clientSecretEl.value,
+    // clientSecret: clientSecretEl.value,
     oauthToken: oauthTokenEl.value
   }
   twitchApiStore.set('twitch-config', apiConfig);
@@ -92,9 +94,11 @@ document.addEventListener("DOMContentLoaded", event => {
   wsPort.value = port;
   wsPass.value = password;
   clientIdEl.value = clientId;
-  clientSecretEl.value = clientSecret;
+  // clientSecretEl.value = clientSecret;
   oauthTokenEl.value = oauthToken;
   setRewardPointsList(getPointsSourceMap());
+  // const app = new ExpressServer(5000);
+  // app.start();
 })
 
 save = () => {
@@ -250,7 +254,7 @@ mapSourceReward = () => {
   const currentReward = rewardsElement.value;
   const sceneVal = obsScenesElement.value;
   const sourceVal = obsSourcesElement.value;
-  const numVal = parseInt(timedElement.value) * 1000;
+  const numVal = parseFloat(timedElement.value) * 1000;
   const timedVal = numVal === 0 ? 0 : numVal + 1000;
   const groupVal = groupElement.value ? groupElement.value : 'None';
   if (currentReward && sceneVal && sourceVal && currentReward !== 'not-connected' && sceneVal !== 'not-connected' && sourceVal !== 'not-connected' ) {
@@ -390,7 +394,7 @@ setScenesList = () => {
         <td class="mdl-data-table__cell--non-numeric reward">${key}</td>
         <td class="mdl-data-table__cell--non-numeric">${val.scene}</td>
         <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
-        <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time/1000) -1}</td>
+        <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
         <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
         <td><i class="material-icons" onclick="editRow(this)">create</i></td>
         <td><i class="material-icons" onclick="removeRow(this)">delete</i></td>`;
@@ -408,7 +412,23 @@ setScenesList = () => {
     const source = row.parentNode.parentNode.childNodes[4].nextSibling.innerHTML;
     const time = row.parentNode.parentNode.childNodes[6].nextSibling.innerHTML;
     const group = row.parentNode.parentNode.childNodes[8].nextSibling.innerHTML;
-    console.table({reward, scene, source, time, group});
+    rewardsElement.value = reward;
+    obsScenesElement.value = scene;
+    obsScenesElement.selected = true;
+    setSourceList(scene);
+    obsSourcesElement.value = source 
+    timedElement.value = time;
+    groupElement.value = group;
+
+    setTimeout( () => {
+      console.table({
+        reward: rewardsElement.value, 
+        scene: obsScenesElement.value, 
+        source: obsSourcesElement.value, 
+        time: timedElement.value, 
+        group: groupElement.value
+      });
+    }, 100);
   }
 
   removeRow = row => {
