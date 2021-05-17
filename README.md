@@ -1,1 +1,1 @@
-# twitch-obs-control
+# Twitch OBS Control
