@@ -23,7 +23,7 @@ const twitchApiStore = new Store({
   defaults: {
       'twitch-config': {
           clientId: '98a3op8i9g48ppw3ji60pw6qlcix52',
-          clientSecret: 'pn0kurovm4ri43z0lv9vpr6i15buyr',
+          // clientSecret: '',
           oauthToken: ''
       }
   }
@@ -80,6 +80,8 @@ dialog.querySelector('.close').addEventListener('click', function() {
 });
 
 twitchSaveDialogEl.addEventListener('click', () => {
+  oauthToken = oauthTokenEl.value;
+  clientId = clientIdEl.value;
   const apiConfig = {
     clientId: clientIdEl.value,
     // clientSecret: clientSecretEl.value,
