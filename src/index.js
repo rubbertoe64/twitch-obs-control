@@ -104,6 +104,9 @@ document.addEventListener("DOMContentLoaded", event => {
 })
 
 save = () => {
+  port = wsPort.value;
+  password = wsPass.value;
+  savedTwitchUser = twitchUserEl.value;
   store.set('twitch-user', twitchUserEl.value);
   store.set('websocket', {port: wsPort.value, password: wsPass.value});
   const data = {
