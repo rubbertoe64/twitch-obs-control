@@ -57,3 +57,7 @@ body {
 .mdl-data-table th {
   color: black;
 }
+
+.copy {
+  cursor: copy;
+}
