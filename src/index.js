@@ -63,6 +63,7 @@ const oauthTokenEl = document.getElementById('twitch-oauth-input');
 const connectTwitchBtnEl = document.getElementById('connect-twitch-btn');
 const disconnectTwtichBtnEl = document.getElementById('disconnect-twitch-btn');
 const pointsSourceListEl = document.getElementById('points-source-list');
+const copyTextEl = document.querySelector('.copy');
 
 
 let { port, password } = store.get("websocket");
@@ -78,6 +79,19 @@ showDialogButton.addEventListener('click', function() {
 dialog.querySelector('.close').addEventListener('click', function() {
   dialog.close();
 });
+
+copyTextEl.onclick = () => {
+  document.execCommand('copy');
+  console.log('copied');
+}
+
+copyTextEl.addEventListener('copy', event => {
+  event.preventDefault();
+  if (event.clipboardData) {
+    event.clipboardData.setData('text/plain', copyTextEl.textContent);
+    console.log(event.clipboardData.getData("text"));
+  }
+})
 
 twitchSaveDialogEl.addEventListener('click', () => {
   oauthToken = oauthTokenEl.value;
