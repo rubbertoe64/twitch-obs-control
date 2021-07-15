@@ -1,7 +1,7 @@
 {
   "name": "toe-obs-electron",
   "productName": "twitch-obs-control",
-  "version": "1.2.7",
+  "version": "1.2.9",
   "description": "This is a program that connects to your Twitch channel, grabs your custom channel point rewards and maps a toggler to an obs source upon redemption",
   "main": "main.js",
   "scripts": {
