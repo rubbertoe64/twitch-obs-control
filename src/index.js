@@ -97,10 +97,11 @@ twitchSaveDialogEl.addEventListener('click', () => {
   clientId = clientIdEl.value;
   const apiConfig = {
     clientId: clientIdEl.value,
-    // clientSecret: clientSecretEl.value,
     oauthToken: oauthTokenEl.value
   }
   twitchApiStore.set('twitch-config', apiConfig);
+  clientId = apiConfig.clientId;
+  oauthToken = apiConfig.oauthToken;
   dialog.close();
 });
 
@@ -126,7 +127,10 @@ save = () => {
 		message: "✅ OBS Websocket Settings Saved",
 		timeout: 2000
   }
-	snackbarContainer.MaterialSnackbar.showSnackbar(data)
+	snackbarContainer.MaterialSnackbar.showSnackbar(data);
+  savedTwitchUser = twitchUserEl.value;
+  port = wsPort.value;
+  password = wsPass.value;
 }
 
 /* OBS Section */
@@ -139,7 +143,7 @@ connectObs = () => {
 				timeout: 2000,
 			}
       snackbarContainer.MaterialSnackbar.showSnackbar(data)
-      this.toggleConnected();
+      this.toggleObsConnected();
       return obs.send('GetSceneList');
     })
     .then(data => {
@@ -171,11 +175,11 @@ disconnectObs = () => {
 		timeout: 2000,
 	}
 	snackbarContainer.MaterialSnackbar.showSnackbar(data)
-	this.toggleConnected()
+	this.toggleObsConnected()
 }
 
 let isConnected = false;
-toggleConnected = () => {
+toggleObsConnected = () => {
   isConnected = !isConnected;
   if ( isConnected ) {
     obsConnectBut.classList.add("hidden");
