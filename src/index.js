@@ -62,6 +62,7 @@ const oauthTokenEl = document.getElementById('twitch-oauth-input');
 const connectTwitchBtnEl = document.getElementById('connect-twitch-btn');
 const disconnectTwtichBtnEl = document.getElementById('disconnect-twitch-btn');
 const pointsSourceListEl = document.getElementById('points-source-list');
+const copyTextEl = document.querySelector('.copy');
 
 
 let { port, password } = store.get("websocket");
@@ -78,7 +79,22 @@ dialog.querySelector('.close').addEventListener('click', function() {
   dialog.close();
 });
 
+copyTextEl.onclick = () => {
+  document.execCommand('copy');
+  console.log('copied');
+}
+
+copyTextEl.addEventListener('copy', event => {
+  event.preventDefault();
+  if (event.clipboardData) {
+    event.clipboardData.setData('text/plain', copyTextEl.textContent);
+    console.log(event.clipboardData.getData("text"));
+  }
+})
+
 twitchSaveDialogEl.addEventListener('click', () => {
+  oauthToken = oauthTokenEl.value;
+  clientId = clientIdEl.value;
   const apiConfig = {
     clientId: clientIdEl.value,
     // clientSecret: clientSecretEl.value,
@@ -101,6 +117,9 @@ document.addEventListener("DOMContentLoaded", event => {
 })
 
 save = () => {
+  port = wsPort.value;
+  password = wsPass.value;
+  savedTwitchUser = twitchUserEl.value;
   store.set('twitch-user', twitchUserEl.value);
   store.set('websocket', {port: wsPort.value, password: wsPass.value});
   const data = {
