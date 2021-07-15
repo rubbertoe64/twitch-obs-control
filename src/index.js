@@ -81,6 +81,11 @@ dialog.querySelector('.close').addEventListener('click', function() {
 
 copyTextEl.onclick = () => {
   document.execCommand('copy');
+  const data = {
+    message: "👍🏼 Text Copied",
+    timeout: 2000,
+  }
+  snackbarContainer.MaterialSnackbar.showSnackbar(data);
   console.log('copied');
 }
 
