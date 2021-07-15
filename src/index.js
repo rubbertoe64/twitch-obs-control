@@ -23,7 +23,6 @@ const twitchApiStore = new Store({
   defaults: {
       'twitch-config': {
           clientId: '98a3op8i9g48ppw3ji60pw6qlcix52',
-          clientSecret: 'pn0kurovm4ri43z0lv9vpr6i15buyr',
           oauthToken: ''
       }
   }
@@ -67,7 +66,7 @@ const pointsSourceListEl = document.getElementById('points-source-list');
 
 let { port, password } = store.get("websocket");
 let savedTwitchUser = store.get('twitch-user');
-let { clientId, clientSecret, oauthToken } = twitchApiStore.get('twitch-config');
+let { clientId, oauthToken } = twitchApiStore.get('twitch-config');
 
 if (! dialog.showModal) {
   dialogPolyfill.registerDialog(dialog);
@@ -172,15 +171,19 @@ toggleConnected = () => {
 
 let isTwitchConnected = false;
 toggleTwitchConnected = () => {
-  isTwitchConnected = !isTwitchConnected;
-  if ( isTwitchConnected ) {
+  if ( !isTwitchConnected ) {
+    isTwitchConnected = !isTwitchConnected;
     connectTwitchBtnEl.classList.add('hidden');
     disconnectTwtichBtnEl.classList.remove('hidden');
-  } else {
+  }
+}
+
+toggleTwitchDisconnected = () => {
+  if ( isTwitchConnected ) {
+    isTwitchConnected = !isTwitchConnected;
     connectTwitchBtnEl.classList.remove('hidden');
     disconnectTwtichBtnEl.classList.add('hidden');
   }
-
 }
 
 ComfyJS.onConnected = () => {
@@ -189,13 +192,23 @@ ComfyJS.onConnected = () => {
 		timeout: 2000
   }
 	snackbarContainer.MaterialSnackbar.showSnackbar(data)
+  toggleTwitchConnected();
+}
+
+ComfyJS.onError = (err) => {
+  const data = {
+    message: `🛑 ${err} 🛑`,
+    timeout: 4000
+  }
+  snackbarContainer.MaterialSnackbar.showSnackbar(data)
+  toggleTwitchDisconnected();
+  console.log('err', err);
 }
 
 
 connectTwitch = async () => {
   ComfyJS.Init(savedTwitchUser, `${oauthToken}`, savedTwitchUser);
   getRewards();
-  toggleTwitchConnected();
   startTwitchListener();
 }
 
@@ -206,7 +219,7 @@ disconnectTwitch = () => {
 		timeout: 2000
   }
 	snackbarContainer.MaterialSnackbar.showSnackbar(data)
-  toggleTwitchConnected();
+  toggleTwitchDisconnected();
 }
 
 getRewards = async () => {
