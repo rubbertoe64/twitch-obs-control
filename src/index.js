@@ -539,7 +539,10 @@ setScenesList = () => {
     toggleSource(source, false);
     setTimeout(() => {
       toggleSource(source, true);
-      setTimeout(() => toggleSource(source, false), time);
+      setTimeout(() => {
+        toggleSource(source, false);
+        
+      }, time);
     }, 500);
     selectedSource.render = false;
     sourcesMap.set(key, selectedSource);
