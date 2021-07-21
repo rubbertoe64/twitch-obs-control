@@ -5,7 +5,7 @@ let currentScenes;
 let sceneMap = new Map();
 let sourcesMap = new Map();
 let groupMap = new Map();
-
+let queueMap = new Map();
 
 const store = new Store({
   configName: 'obs-proxy-settings',
@@ -78,6 +78,7 @@ showDialogButton.addEventListener('click', function() {
 dialog.querySelector('.close').addEventListener('click', function() {
   dialog.close();
 });
+
 
 copyTextEl.onclick = () => {
   document.execCommand('copy');
@@ -266,7 +267,7 @@ startTwitchListener = () => {
           if (currentSceneSource.time === 0) {
             toggleSpecifiedSource(currentSceneSource.source);
           } else {
-            timedToggleSource(currentSceneSource.source, currentSceneSource.time)
+            checkQueueStatus(currentSceneSource.source, currentSceneSource, user);
           }
         } else {
           toggleGroup(group, reward);
@@ -275,6 +276,29 @@ startTwitchListener = () => {
     }
   }
 }
+
+
+checkQueueStatus = (currentReward, source, user) => {
+  if (queueMap.has(currentReward)) {
+    const currentActiveReward = queueMap.get(currentReward);
+    currentActiveReward.rewardArray.push(user);
+    // set reward
+    toggleRewardQueue(currentActiveReward);
+  } else {
+    queueMap.set(currentReward, {reward: source, rewardArray: [user], flag: false});
+    const currentActiveReward = queueMap.get(currentReward);
+    toggleRewardQueue(currentActiveReward);
+  }
+}
+
+toggleRewardQueue = (queue) => {
+  if (!queue.flag) {
+    // queue.flag = true;
+    const currentActiveReward = queueMap.get(queue.reward.source);
+    timedToggleSource(queue.reward.source, queue.reward.time);
+  }
+}
+
 
 toggleGroup = (group, reward) => {
   let currentPointsSourceMap = getPointsSourceMap();
@@ -529,23 +553,33 @@ setScenesList = () => {
       source: source,
       render: toggled
     }, (err, res) => {
-      if (err) console.log(err);
+      if (err) console.error(err);
     })
   }
 
   timedToggleSource = (source, time) => {
     const key = source;
     const selectedSource = sourcesMap.get(key);
-    toggleSource(source, false);
-    setTimeout(() => {
-      toggleSource(source, true);
+    const currentActiveReward = queueMap.get(source);
+    if(currentActiveReward.rewardArray.length > 0){
+      currentActiveReward.flag = true;
+      currentActiveReward.rewardArray.shift();
+      toggleSource(source, false);
       setTimeout(() => {
-        toggleSource(source, false);
-        
-      }, time);
-    }, 500);
-    selectedSource.render = false;
-    sourcesMap.set(key, selectedSource);
+        toggleSource(source, true);
+        setTimeout(() => {
+          toggleSource(source, false);
+          if(currentActiveReward.rewardArray.length > 0) {
+            timedToggleSource(currentActiveReward.reward.source, currentActiveReward.reward.time, currentActiveReward);
+          } else {
+            currentActiveReward.flag = false;
+          }
+        }, time);
+      }, 500);
+      selectedSource.render = false;
+      sourcesMap.set(key, selectedSource);
+    }
+
   }
 
   getToken = () => {
