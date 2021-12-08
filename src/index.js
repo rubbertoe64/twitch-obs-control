@@ -153,6 +153,7 @@ connectObs = () => {
       return obs.send('GetSceneList');
     })
     .then(data => {
+      console.log('scene data', data);
       currentScenes = data.scenes;
       data.scenes.forEach(scene => {
 
@@ -172,6 +173,15 @@ connectObs = () => {
 		}
 		snackbarContainer.MaterialSnackbar.showSnackbar(data)
 	})
+
+  // TODO: Set the sources options when this is completed
+  // TODO: TI_Felix
+  obs.on('SourceCreated', err => {
+    console.log('err', err);
+  })
+
+  // TODO: Add on SourceDetroyed (Same as above)
+  // TODO: Set the time of a media source if the media source is of type mmpeg seconds
 }
 
 disconnectObs = () => {
@@ -419,11 +429,26 @@ setScenesList = () => {
     const selectedSources = selectedScene.sources;
     selectedSources.forEach(source => {
       const optionEl = document.createElement("option");
-      optionEl.value = source.name;
-      const text = document.createTextNode(source.name);
-      // scene also has name of sources
-      optionEl.appendChild(text);
-      obsSourcesElement.appendChild(optionEl);
+      let text;
+      if (source.type === 'ffmpeg_source') {
+        obs.sendCallback('GetMediaDuration', {
+          sourceName: source.name,
+        }, (err, res) => {
+          if (err) console.error(err);
+          console.log('ffmpeg res', res);
+          optionEl.value = source.name + ` (${res.mediaDuration / 1000}s)`;
+          text = document.createTextNode(source.name + ` (${res.mediaDuration / 1000}s)`);
+          // scene also has name of sources
+          optionEl.appendChild(text);
+          obsSourcesElement.appendChild(optionEl);
+        })
+      } else {
+        optionEl.value = source.name;
+        text = document.createTextNode(source.name);
+        // scene also has name of sources
+        optionEl.appendChild(text);
+        obsSourcesElement.appendChild(optionEl);
+      }
     })
   }
 
@@ -448,8 +473,8 @@ setScenesList = () => {
         <th class="mdl-data-table__cell--non-numeric">Source</th>
         <th class="data-table-middle">Seconds</th>
         <th class="mdl-data-table__cell--non-numeric">Group</th>
-        <th></th>
-        <th></th>
+        <th width="20px"></th>
+        <th width="20px"></th>
       </tr>
     </thead>`;
     const tbodyEl = document.createElement('tbody');
@@ -461,8 +486,8 @@ setScenesList = () => {
         <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
         <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
         <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
-        <td><i class="material-icons" onclick="editRow(this)">create</i></td>
-        <td><i class="material-icons" onclick="removeRow(this)">delete</i></td>`;
+        <td><i class="material-icons pointer" onclick="editRow(this)">create</i></td>
+        <td><i class="material-icons pointer" onclick="removeRow(this)">delete</i></td>`;
       trEl.innerHTML = listItem;
       tbodyEl.appendChild(trEl);
     }
