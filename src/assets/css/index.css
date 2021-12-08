@@ -13,7 +13,6 @@ body {
   height: 215px;
   display: block;
   overflow-y: scroll;
-  
 }
 
 ::-webkit-scrollbar {
@@ -80,4 +79,8 @@ body {
 .advanced-options {
   padding-top: 20px;
   margin-left: 35px;
+}
+
+.pointer {
+  cursor: pointer;
 }
