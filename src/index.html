@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twitch Points OBS Source Toggler</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="assets/css/light-theme.css" id="theme-link">
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -13,11 +14,40 @@
   </head>
   <body>
 
+    <!-- Navbar goes here-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="main-title">OBS Control</div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Channel Points</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Bits</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Settings</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="theme-switch-button">
+      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="theme-switch">
+        <input type="checkbox" id="theme-switch" class="mdl-switch__input">
+        <span class="mdl-switch__label"></span>
+      </label>
+    </div>
+
     <div class="row">
       <div class="column1">
-
-        <div class="main-title">OBS Control</div>
-    
     
         <h5>OBS Websocket Settings</h5>
         <!-- Numeric Textfield -->
@@ -128,13 +158,6 @@
         <thead>
         </tbody>
       </table>
-    </div>
-
-    <div class="theme-switch-button">
-      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="theme-switch">
-        <input type="checkbox" id="theme-switch" class="mdl-switch__input">
-        <span class="mdl-switch__label"></span>
-      </label>
     </div>
 
     <div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">

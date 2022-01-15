@@ -69,15 +69,20 @@ let { port, password } = store.get("websocket");
 let savedTwitchUser = store.get('twitch-user');
 let { clientId, oauthToken } = twitchApiStore.get('twitch-config');
 
-if (! dialog.showModal) {
+if (dialog && !dialog.showModal) {
   dialogPolyfill.registerDialog(dialog);
 }
-showDialogButton.addEventListener('click', function() {
-  dialog.showModal();
-});
-dialog.querySelector('.close').addEventListener('click', function() {
-  dialog.close();
-});
+if (showDialogButton) {
+  showDialogButton.addEventListener('click', function() {
+    dialog.showModal();
+  });
+}
+
+if (dialog) {
+  dialog.querySelector('.close').addEventListener('click', function() {
+    dialog.close();
+  });
+}
 
 
 copyTextEl.onclick = () => {
@@ -153,6 +158,7 @@ connectObs = () => {
       return obs.send('GetSceneList');
     })
     .then(data => {
+      console.log('scene data', data);
       currentScenes = data.scenes;
       data.scenes.forEach(scene => {
 
@@ -172,6 +178,15 @@ connectObs = () => {
 		}
 		snackbarContainer.MaterialSnackbar.showSnackbar(data)
 	})
+
+  // TODO: Set the sources options when this is completed
+  // TODO: TI_Felix
+  obs.on('SourceCreated', err => {
+    console.log('err', err);
+  })
+
+  // TODO: Add on SourceDetroyed (Same as above)
+  // TODO: Set the time of a media source if the media source is of type mmpeg seconds
 }
 
 disconnectObs = () => {
@@ -415,15 +430,36 @@ setScenesList = () => {
 
   setSourceList = (scene) => {
     obsSourcesElement.innerHTML = '';
+    const selectOption = document.createElement("option");
+    selectOption.selected = true;
+    selectOption.value = null;
+    selectOption.appendChild(document.createTextNode('(Select a source)'));
+    obsSourcesElement.appendChild(selectOption);
     const selectedScene = sceneMap.get(scene);
     const selectedSources = selectedScene.sources;
-    selectedSources.forEach(source => {
+    selectedSources.forEach((source, index) => {
       const optionEl = document.createElement("option");
-      optionEl.value = source.name;
-      const text = document.createTextNode(source.name);
-      // scene also has name of sources
-      optionEl.appendChild(text);
-      obsSourcesElement.appendChild(optionEl);
+      let text;
+      if (source.type === 'ffmpeg_source') {
+        obs.sendCallback('GetMediaDuration', {
+          sourceName: source.name,
+        }, (err, res) => {
+          if (err) console.error(err);
+          const mediaTime = source.name + ` (${res.mediaDuration / 1000}s)`
+          optionEl.value = source.name;
+          text = document.createTextNode(mediaTime);
+          // scene also has name of sources
+          optionEl.appendChild(text);
+          optionEl.setAttribute('time', res.mediaDuration / 1000)
+          obsSourcesElement.appendChild(optionEl);
+        })
+      } else {
+        optionEl.value = source.name;
+        text = document.createTextNode(source.name);
+        // scene also has name of sources
+        optionEl.appendChild(text);
+        obsSourcesElement.appendChild(optionEl);
+      }
     })
   }
 
@@ -448,8 +484,8 @@ setScenesList = () => {
         <th class="mdl-data-table__cell--non-numeric">Source</th>
         <th class="data-table-middle">Seconds</th>
         <th class="mdl-data-table__cell--non-numeric">Group</th>
-        <th></th>
-        <th></th>
+        <th width="20px"></th>
+        <th width="20px"></th>
       </tr>
     </thead>`;
     const tbodyEl = document.createElement('tbody');
@@ -461,8 +497,8 @@ setScenesList = () => {
         <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
         <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
         <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
-        <td><i class="material-icons" onclick="editRow(this)">create</i></td>
-        <td><i class="material-icons" onclick="removeRow(this)">delete</i></td>`;
+        <td><i class="material-icons pointer" onclick="editRow(this)">create</i></td>
+        <td><i class="material-icons pointer" onclick="removeRow(this)">delete</i></td>`;
       trEl.innerHTML = listItem;
       tbodyEl.appendChild(trEl);
     }
@@ -481,24 +517,20 @@ setScenesList = () => {
     obsScenesElement.value = scene;
     obsScenesElement.selected = true;
     setSourceList(scene);
-    obsSourcesElement.value = source 
+    console.log('source', source);
+    console.log('obsSourcesElement', obsSourcesElement);
+    // Get new obsSourcesElement
+    setTimeout(() => {
+      const latestObsSourcesElement = document.getElementById('sources');
+      latestObsSourcesElement.value = source 
+    }, 100)
     timedElement.value = time;
     groupElement.value = group;
-
-    setTimeout( () => {
-      console.table({
-        reward: rewardsElement.value, 
-        scene: obsScenesElement.value, 
-        source: obsSourcesElement.value, 
-        time: timedElement.value, 
-        group: groupElement.value
-      });
-    }, 100);
   }
 
   removeRow = row => {
     const currentReward = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
-    console.log(currentReward);
+    console.log('currentReward', currentReward);
     removeSingleSourceReward(currentReward)
   }
 
@@ -510,7 +542,20 @@ setScenesList = () => {
   }
 
   onSourceSelectionChange = () => {
+    //When source is selected, set timedElement to value 
+    const selectedIndex = obsSourcesElement.selectedIndex;
+    const selectedOption = obsSourcesElement.options[selectedIndex];
+    const timeValue = selectedOption.getAttribute('time');
+
+    if (timeValue) {
+      timedElement.value = timeValue;
+    } else {
+      timedElement.value = 0;
+    }
     const selectedSourceValue = obsSourcesElement.value;
+    console.log('selectedSource', selectedOption);
+    console.log('selectedSourceValue', selectedOption.value);
+    console.log('selectedSourceData', obsSourcesElement);
   }
 
   /* OBS Toggling */

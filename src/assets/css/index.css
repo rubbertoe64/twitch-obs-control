@@ -13,7 +13,6 @@ body {
   height: 215px;
   display: block;
   overflow-y: scroll;
-  
 }
 
 ::-webkit-scrollbar {
@@ -40,6 +39,10 @@ body {
 .small-text-red {
   font-size: 10px;
   color: rgb(250, 95, 95);
+}
+
+.theme-switch-button > label {
+  top: 70px;
 }
 
 .mdl-dialog {
@@ -80,4 +83,12 @@ body {
 .advanced-options {
   padding-top: 20px;
   margin-left: 35px;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.navbar-brand {
+  padding-left: 200px;
 }
