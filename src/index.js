@@ -63,6 +63,7 @@ const connectTwitchBtnEl = document.getElementById('connect-twitch-btn');
 const disconnectTwtichBtnEl = document.getElementById('disconnect-twitch-btn');
 const pointsSourceListEl = document.getElementById('points-source-list');
 const copyTextEl = document.querySelector('.copy');
+const navbarTitleEl = document.getElementById('navbar-title');
 
 
 let { port, password } = store.get("websocket");
@@ -127,6 +128,41 @@ document.addEventListener("DOMContentLoaded", event => {
   // const app = new ExpressServer(5000);
   // app.start();
 })
+
+
+const initNavbar = () => {
+  const mainNavEl = document.getElementById('navbar-link-list');
+  const navChildren = mainNavEl.children;
+  for ( const child of navChildren) {
+    const firstChild = child.children[0];
+    firstChild.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log( firstChild.dataset.page + ' clicked')
+      removeActive();
+      child.classList.add('active');
+      showSpecificPage(firstChild.dataset.page);
+      navbarTitleEl.innerText = firstChild.dataset.title;
+    })
+  };
+
+  removeActive = () => {
+    for ( const child of navChildren ) {
+      child.classList.remove('active');
+    }
+  };
+
+  showSpecificPage = (page) => {
+    console.log('page', page)
+    const mainBody = document.getElementById('main-body').children;
+    for ( const section of mainBody) {
+      if (section.id === page) {
+        section.classList.remove('hide-page')
+      } else {
+        section.classList.add('hide-page')
+      }
+    }
+  }
+}
 
 save = () => {
   port = wsPort.value;
@@ -272,6 +308,7 @@ getRewards = async () => {
 }
   
 startTwitchListener = () => {
+  // ComfyJS
   ComfyJS.onReward = ( user, reward, cost, extra ) => {
     let currentPointsSourceMap = getPointsSourceMap();
     if ( currentPointsSourceMap.has(reward) ) {
@@ -647,3 +684,4 @@ setScenesList = () => {
 
 
 
+initNavbar();

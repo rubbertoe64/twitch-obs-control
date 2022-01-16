@@ -61,3 +61,21 @@ body {
 .copy {
   cursor: copy;
 }
+
+#connect-twitch-btn,
+#disconnect-twitch-btn {
+  background-color: purple;
+}
+
+#channel-points-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#version {
+  position: fixed;
+  bottom: 5px;
+  right: 5px;
+  opacity: 20%;
+}

@@ -31,6 +31,8 @@ const createWindow = () => {
 			nodeIntegration: true,
 			enableRemoteModule: true,
 		},
+		// autoHideMenuBar: true,
+		// frame: false
 	})
 
 	// The BrowserWindow class extends the node.js core EventEmitter class, so we use that API
@@ -47,7 +49,7 @@ const createWindow = () => {
 	mainWindow.loadFile(path.join(__dirname, "src/index.html"))
 
 	// Open the DevTools.
-	// mainWindow.webContents.openDevTools()
+	mainWindow.webContents.openDevTools()
 };
 
 // This method will be called when Electron has finished
