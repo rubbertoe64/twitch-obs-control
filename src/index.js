@@ -215,14 +215,11 @@ connectObs = () => {
 		snackbarContainer.MaterialSnackbar.showSnackbar(data)
 	})
 
-  // TODO: Set the sources options when this is completed
-  // TODO: TI_Felix
+
   obs.on('SourceCreated', err => {
     console.log('err', err);
   })
 
-  // TODO: Add on SourceDetroyed (Same as above)
-  // TODO: Set the time of a media source if the media source is of type mmpeg seconds
 }
 
 disconnectObs = () => {
@@ -326,6 +323,10 @@ startTwitchListener = () => {
         }
       }
     }
+  }
+
+  ComfyJS.onCheer = ( user, message, bits, flags, extra ) => {
+    
   }
 }
 
