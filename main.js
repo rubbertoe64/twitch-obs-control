@@ -31,7 +31,7 @@ const createWindow = () => {
 			nodeIntegration: true,
 			enableRemoteModule: true,
 		},
-		// autoHideMenuBar: true,
+		autoHideMenuBar: true,
 		// frame: false
 	})
 
@@ -49,7 +49,7 @@ const createWindow = () => {
 	mainWindow.loadFile(path.join(__dirname, "src/index.html"))
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools()
+	// mainWindow.webContents.openDevTools()
 };
 
 // This method will be called when Electron has finished
