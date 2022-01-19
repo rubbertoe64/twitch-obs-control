@@ -26,7 +26,8 @@ option {
   color: black;
 }
 
-.reward-points-list {
+.reward-points-list,
+.reward-bits-list {
   color: white !important;
   border: 1px white solid;
 }

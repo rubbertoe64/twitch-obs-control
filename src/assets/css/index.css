@@ -45,11 +45,13 @@ section {
   padding: 20px;
 }
 
-.points-button-list {
+.points-button-list,
+.bits-button-list {
   padding: 20px;
 }
 
-.reward-points-list {
+.reward-points-list,
+.reward-bits-list {
   margin: 0 30px;
   height: 215px;
   display: block;
