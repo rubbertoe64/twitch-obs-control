@@ -1,3 +1,7 @@
+:root {
+  --main-twitch-color: #6441a5;
+}
+
 body {
   /* overflow: hidden; */
   overflow-x: hidden;
@@ -60,4 +64,27 @@ body {
 
 .copy {
   cursor: copy;
+}
+
+#connect-twitch-btn,
+#disconnect-twitch-btn {
+  background-color: var(--main-twitch-color);
+}
+
+#channel-points-page,
+#bits-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#version {
+  position: fixed;
+  bottom: 5px;
+  right: 5px;
+  opacity: 20%;
+}
+
+#show-dialog {
+  background-color: var(--main-twitch-color);
 }

@@ -16,24 +16,24 @@
 
     <!-- Navbar goes here-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="main-title">OBS Control</div>
+      <div class="main-title" id="navbar-title">OBS Control</div>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav ml-auto">
+        <ul class="navbar-nav ml-auto" id="navbar-link-list">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" id="home-page-nav" data-page="home-page" data-title="OBS Control" href="#">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Channel Points</a>
+            <a class="nav-link" id="channel-points-page-nav" data-page="channel-points-page" data-title="Channel Points" href="#">Channel Points</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Bits</a>
+            <a class="nav-link" id="bits-page-nav" data-page="bits-page" data-title="Bits" href="#">Bits</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Settings</a>
+            <a class="nav-link" id="settings-page-nav" data-page="settings-page" data-title="Settings" href="#">Settings</a>
           </li>
         </ul>
       </div>
@@ -45,156 +45,244 @@
         <span class="mdl-switch__label"></span>
       </label>
     </div>
-
-    <div class="row">
-      <div class="column1">
-    
-        <h5>OBS Websocket Settings</h5>
-        <!-- Numeric Textfield -->
-        <form action="#" onsubmit="return false">
-          <div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" id="twitch-user">
-            <label class="mdl-textfield__label" for="twitch-user">Twitch User</label>
-          </div>
-          <div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" value="4444" id="websocket-port">
-            <label class="mdl-textfield__label" for="websocket-port">Port</label>
-            <span class="mdl-textfield__error">Input is not a number!</span>
-          </div>
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="password" value="changeme" id="websocket-password">
-            <label class="mdl-textfield__label" for="sample3">Password</label>
-          </div>
-          <div class="mdl-textfield mdl-js-textfield">
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" onclick="save()" id="save-button">
-              Save
-            </button>
-            <div class="mdl-tooltip" data-mdl-for="save-button">
-              Save twitch username and OBS Proxy settings to local storage
-            </div>
-          </div>
-        </form>
-        
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="connectObs()" id="obsConnect">
-          Connect OBS
-        </button>
-        <div class="mdl-tooltip" data-mdl-for="obsConnect">
-          Verify all proxy settings are correct and connect to your obs client
-        </div>
-        <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="disconnectObs()" id="obsDisconnect">
-          Disconnect
-        </button>
-        <button id="show-dialog" type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
-          Twitch API Settings
-        </button>
-        
-      </div>
-      <div class="right-side">
-        <div class="column2 scenes">
-          <div class="mid-column2">
-            <div class="sub-title">Rewards List</div>
-            <select name="rewards" class="mdl-textfield__input" id="rewards">
-              <option value="not-connected">Twitch Not Connected</option>
-            </select>
-          </div>
-          <div class="mid-column1">
-            <div class="sub-title">OBS Scenes</div>
-            <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()">
-              <option value="not-connected">OBS Not Connected</option>
-            </select>
-          </div>
-          <div class="mid-column2">
-            <div class="sub-title">OBS Sources</div>
-            <select name="sources" class="mdl-textfield__input" id="sources" onchange="onSourceSelectionChange()">
-              <option value="not-connected">OBS Not Connected</option>
-            </select>
-          </div>
-        </div>
-        <div class="advanced-options">
-          <div class="sub-title2" id="time-title">Timed? (Sec)</div>
-          <div class="mdl-tooltip" data-mdl-for="time-title">
-            Sets a timer for duration of source toggle. Set 0 if you want to just toggle on and off.
-            Set the number of seconds the media is.
-          </div>
-          <div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$" value="0" id="time-input">
-            <label class="mdl-textfield__label" for="time-input">Timed?</label>
-            <span class="mdl-textfield__error">Input is not an acceptable number!</span>
-          </div>
-          <div class="sub-title2" id="group-title">Group</div>
-          <div class="mdl-tooltip" data-mdl-for="group-title">
-            Add scene to group that will toggle off all in that group and only turn on specified scene.
-          </div>
-          <div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" value="None" id="group-input">
-            <label class="mdl-textfield__label" for="group-input">Group</label>
-          </div>
-        </div>
-      </div>
-      <form action="#" onsubmit="return false">
-        <div class="button-list">
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="mapSourceReward()">
-            Add to List
+    <div id="main-body">
+      <!-- START HOME PAGE -->
+      <section id="home-page" class="intro-appear">
+        <h1 class="show">👋 Hello 👋</h1>
+        <p class="show">This app is used to toggle obs sources using various Twitch services</p>
+        <p class="show">Created by: pintarider</p>
+        <div id="connect-buttons">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="connectObs()" id="obsConnect">
+            Connect OBS
           </button>
+          <div class="mdl-tooltip" data-mdl-for="obsConnect">
+            Verify all proxy settings are correct and connect to your obs client
+          </div>
+          <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="disconnectObs()" id="obsDisconnect">
+            Disconnect
+          </button>
+          
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="connectTwitch()" id="connect-twitch-btn">
             Connect Twitch
           </button>
           <button class="hidden mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="disconnectTwitch()" id="disconnect-twitch-btn">
             Disconnect Twitch
           </button>
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="getRewards()">
-            Refresh Rewards
-          </button>
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="testToggleSource()">
-            Clear List
-          </button>
         </div>
-      </form>
-    </div>
-    <div class="reward-points-list">
-      <!-- <ul class="mdl-list" id="points-source-list">
-      </ul> -->
-      <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp list-table-props" id="points-source-list">
-        <thead>
-        </tbody>
-      </table>
-    </div>
+      </section>
+      <!-- END HOME PAGE -->
+      <!-- START CHANNEL POINTS PAGE -->
+      <div id="channel-points-page" class="hide-page">
+        <div class="right-side">
+          <div class="column2 scenes">
+            <div class="mid-column2">
+              <div class="sub-title">Rewards List</div>
+              <select name="rewards" class="mdl-textfield__input" id="rewards">
+                <option value="not-connected">Twitch Not Connected</option>
+              </select>
+            </div>
+            <div class="mid-column1">
+              <div class="sub-title">OBS Scenes</div>
+              <select name="scenes" class="mdl-textfield__input" id="scenes" onchange="onSceneSelectionChange()">
+                <option value="not-connected">OBS Not Connected</option>
+              </select>
+            </div>
+            <div class="mid-column2">
+              <div class="sub-title">OBS Sources</div>
+              <select name="sources" class="mdl-textfield__input" id="sources" onchange="onSourceSelectionChange()">
+                <option value="not-connected">OBS Not Connected</option>
+              </select>
+            </div>
+          </div>
+          <div class="advanced-options">
+            <div class="sub-title2" id="time-title">Timed? (Sec)</div>
+            <div class="mdl-tooltip" data-mdl-for="time-title">
+              Sets a timer for duration of source toggle. Set 0 if you want to just toggle on and off.
+              Set the number of seconds the media is.
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$" value="0" id="time-input">
+              <label class="mdl-textfield__label" for="time-input">Timed?</label>
+              <span class="mdl-textfield__error">Input is not an acceptable number!</span>
+            </div>
+            <div class="sub-title2" id="group-title">Group</div>
+            <div class="mdl-tooltip" data-mdl-for="group-title">
+              Add scene to group that will toggle off all in that group and only turn on specified scene.
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" value="None" id="group-input">
+              <label class="mdl-textfield__label" for="group-input">Group</label>
+            </div>
+          </div>
+        </div>
+        <form action="#" onsubmit="return false" class="points-button-list">
+          <div class="button-list">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="mapSourceReward()">
+              Add to List
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="getRewards()">
+              Refresh Rewards
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="clearPointsTable()">
+              Clear List
+            </button>
+          </div>
+        </form>
+        <div class="reward-points-list">
+          <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp list-table-props" id="points-source-list">
+            <thead>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- END CHANNEL POINTS PAGE -->
+      <!-- START BITS PAGE -->
+      <div id="bits-page" class="hide-page">
+        
+        <div class="right-side">
+          <div class="column2 scenes">
+            <div class="mid-column2">
+              <!-- <label for="bits-amount">Bits Amount</label> -->
+              <div class="sub-title">Amount of Bits</div>
+              <input class="mdl-textfield__input" type="number" min="1" pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$" value="1" id="bits-input">
+              <span class="mdl-textfield__error">Input is not an acceptable number!</span>
+          
+            </div>
+            <div class="mid-column1">
+              <div class="sub-title">OBS Scenes</div>
+              <select name="scenes" class="mdl-textfield__input" id="bit-scenes" onchange="onBitsSceneSelectionChange()">
+                <option value="not-connected">OBS Not Connected</option>
+              </select>
+            </div>
+            <div class="mid-column2">
+              <div class="sub-title">OBS Sources</div>
+              <select name="sources" class="mdl-textfield__input" id="bit-sources" onchange="onBitsSourceSelectionChange()">
+                <option value="not-connected">OBS Not Connected</option>
+              </select>
+            </div>
+          </div>
+          <div class="advanced-options">
+            <div class="sub-title2" id="bit-time-title">Timed? (Sec)</div>
+            <div class="mdl-tooltip" data-mdl-for="bit-time-title">
+              Sets a timer for duration of source toggle. Set 0 if you want to just toggle on and off.
+              Set the number of seconds the media is.
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$" value="0" id="bit-time-input">
+              <label class="mdl-textfield__label" for="bit-time-input">Timed?</label>
+              <span class="mdl-textfield__error">Input is not an acceptable number!</span>
+            </div>
+            <div class="sub-title2" id="bit-group-title">Group</div>
+            <div class="mdl-tooltip" data-mdl-for="bit-group-title">
+              Add scene to group that will toggle off all in that group and only turn on specified scene.
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" value="None" id="bit-group-input">
+              <label class="mdl-textfield__label" for="group-input">Group</label>
+            </div>
+          </div>
+        </div>
+        <form action="#" onsubmit="return false" class="bits-button-list">
+          <div class="button-list">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="mapSourceBits()">
+              Add to List
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="clearBitsTable()">
+              Clear List
+            </button>
+          </div>
+        </form>
+        <div class="reward-bits-list">
+          <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp list-table-props" id="bits-source-list">
+            <thead>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- END BITS PAGE -->
 
+      <!-- START SETTINGS PAGE -->
+      <div id="settings-page" class="hide-page">
+        <div class="row">
+          <div class="column1">
+        
+            <h5>OBS Websocket Settings</h5>
+            <!-- Numeric Textfield -->
+            <form action="#" onsubmit="return false">
+              <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" id="twitch-user">
+                <label class="mdl-textfield__label" for="twitch-user">Twitch User</label>
+              </div>
+              <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" value="4444" id="websocket-port">
+                <label class="mdl-textfield__label" for="websocket-port">Port</label>
+                <span class="mdl-textfield__error">Input is not a number!</span>
+              </div>
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="password" value="changeme" id="websocket-password">
+                <label class="mdl-textfield__label" for="sample3">Password</label>
+              </div>
+              <div class="mdl-textfield mdl-js-textfield">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" onclick="save()" id="save-button">
+                  Save
+                </button>
+                <div class="mdl-tooltip" data-mdl-for="save-button">
+                  Save twitch username and OBS Proxy settings to local storage
+                </div>
+              </div>
+            </form>
+            
+            <button id="show-dialog" type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+              Twitch API Settings
+            </button>
+            
+          </div>
+          
+        </div>
+        
+        <dialog class="mdl-dialog">
+          <h4 class="mdl-dialog__title">Twitch API Client Data</h4>
+          <div class="mdl-dialog__content">
+            <div class="mdl-textfield mdl-js-textfield">
+              <label class="" for="twitch-api-client-id-input">Client ID</label>
+              <input class="mdl-textfield__input" type="text" id="twitch-api-client-id-input">
+            </div>
+            <!-- <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" id="twitch-api-client-secret-input">
+              <label class="" for="twitch-api-client-secret-input">Client Secret</label>
+            </div> -->
+            <div class="mdl-textfield mdl-js-textfield">
+              <label class="" for="twitch-oauth-input">OAuth Token</label>
+              <input class="mdl-textfield__input" type="text" id="twitch-oauth-input">
+            </div>
+          </div>
+          <div class="mdl-dialog__actions">
+            <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored close" id="twitch-api-cancel">Cancel</button>
+            <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="twitch-api-save">Save</button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="getToken()">
+              Get Token
+            </button>
+          </div>
+          <div class="small-text">Scopes:</div>
+          <div class="small-text-red copy">channel:manage:redemptions channel:read:redemptions channel:read:hype_train channel:read:subscriptions moderation:read moderation:read user:edit user:read:email chat:edit chat:read</div>
+        </dialog>
+      </div>
+      <!-- END SETTINGS PAGE -->
+  
+      
+    </div>
     <div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
       <div class="mdl-snackbar__text"></div>
       <button class="mdl-snackbar__action" type="button"></button>
     </div>
-
-  <dialog class="mdl-dialog">
-    <h4 class="mdl-dialog__title">Twitch API Client Data</h4>
-    <div class="mdl-dialog__content">
-      <div class="mdl-textfield mdl-js-textfield">
-        <label class="" for="twitch-api-client-id-input">Client ID</label>
-        <input class="mdl-textfield__input" type="text" id="twitch-api-client-id-input">
-      </div>
-      <!-- <div class="mdl-textfield mdl-js-textfield">
-        <input class="mdl-textfield__input" type="text" id="twitch-api-client-secret-input">
-        <label class="" for="twitch-api-client-secret-input">Client Secret</label>
-      </div> -->
-      <div class="mdl-textfield mdl-js-textfield">
-        <label class="" for="twitch-oauth-input">OAuth Token</label>
-        <input class="mdl-textfield__input" type="text" id="twitch-oauth-input">
-      </div>
-    </div>
-    <div class="mdl-dialog__actions">
-      <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored close" id="twitch-api-cancel">Cancel</button>
-      <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="twitch-api-save">Save</button>
-      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="getToken()">
-        Get Token
-      </button>
-    </div>
-    <div class="small-text">Scopes:</div>
-    <div class="small-text-red copy">channel:manage:redemptions channel:read:redemptions channel:read:hype_train channel:read:subscriptions moderation:read moderation:read user:edit user:read:email chat:edit chat:read</div>
-  </dialog>
-
+    
+    <div id="version">Ver: <span id="version-number"></span></div>
+    
   </body>
   <script src="assets/js/main-packages.js"></script>
   <script src="index.js"></script>
   <script src="assets/js/theme-switcher.js"></script>
-
-</html>
+  <script src="assets/js/version-manager.js"></script>
+  
+  </html>
+  

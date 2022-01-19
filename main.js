@@ -31,6 +31,8 @@ const createWindow = () => {
 			nodeIntegration: true,
 			enableRemoteModule: true,
 		},
+		autoHideMenuBar: true,
+		// frame: false
 	})
 
 	// The BrowserWindow class extends the node.js core EventEmitter class, so we use that API
