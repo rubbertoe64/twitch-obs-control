@@ -42,17 +42,42 @@ const sourceGroupStore = new Store({
   }
 });
 
+const bitsSourceToggleStore = new Store({
+  configName: 'bits-source-toggle-mapping',
+  defaults: {
+    'bits-source': JSON.stringify(new Map())
+  }
+});
+
+const bitsSourceGroupStore = new Store({
+  configName: 'bits-source-group',
+  defaults: {
+    group: JSON.stringify(new Map())
+  }
+});
+
+const navbarTitleEl = document.getElementById('navbar-title');
 const twitchUserEl = document.getElementById("twitch-user");
 const wsPort = document.getElementById("websocket-port")
 const wsPass = document.getElementById("websocket-password")
 const snackbarContainer = document.querySelector("#demo-snackbar-example");
 const obsConnectBut = document.getElementById("obsConnect");
-const rewardsElement = document.getElementById('rewards');
 const obsDisconnectBut = document.getElementById("obsDisconnect");
+// Points Reward
+const rewardsElement = document.getElementById('rewards');
 const obsScenesElement = document.getElementById('scenes');
 const obsSourcesElement = document.getElementById('sources');
 const timedElement = document.getElementById('time-input');
 const groupElement = document.getElementById('group-input');
+const pointsSourceListEl = document.getElementById('points-source-list');
+// Bits
+const bitsInputElement = document.getElementById('bits-input');
+const obsScenesBitsElement = document.getElementById('bit-scenes');
+const obsSourcesBitsElement = document.getElementById('bit-sources');
+const timedBitsElement = document.getElementById('bit-time-input');
+const groupBitsElement = document.getElementById('bit-group-input');
+const bitsSourceListEl = document.getElementById('bits-source-list');
+
 const dialog = document.querySelector('dialog');
 const showDialogButton = document.querySelector('#show-dialog');
 const twitchSaveDialogEl = document.getElementById('twitch-api-save');
@@ -61,9 +86,7 @@ const clientIdEl = document.getElementById('twitch-api-client-id-input');
 const oauthTokenEl = document.getElementById('twitch-oauth-input');
 const connectTwitchBtnEl = document.getElementById('connect-twitch-btn');
 const disconnectTwtichBtnEl = document.getElementById('disconnect-twitch-btn');
-const pointsSourceListEl = document.getElementById('points-source-list');
 const copyTextEl = document.querySelector('.copy');
-const navbarTitleEl = document.getElementById('navbar-title');
 
 
 let { port, password } = store.get("websocket");
@@ -93,14 +116,12 @@ copyTextEl.onclick = () => {
     timeout: 2000,
   }
   snackbarContainer.MaterialSnackbar.showSnackbar(data);
-  console.log('copied');
 }
 
 copyTextEl.addEventListener('copy', event => {
   event.preventDefault();
   if (event.clipboardData) {
     event.clipboardData.setData('text/plain', copyTextEl.textContent);
-    console.log(event.clipboardData.getData("text"));
   }
 })
 
@@ -125,6 +146,7 @@ document.addEventListener("DOMContentLoaded", event => {
   // clientSecretEl.value = clientSecret;
   oauthTokenEl.value = oauthToken;
   setRewardPointsList(getPointsSourceMap());
+  setBitsPointsList(getBitsSourceMap());
   // const app = new ExpressServer(5000);
   // app.start();
 })
@@ -137,7 +159,6 @@ const initNavbar = () => {
     const firstChild = child.children[0];
     firstChild.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log( firstChild.dataset.page + ' clicked')
       removeActive();
       child.classList.add('active');
       showSpecificPage(firstChild.dataset.page);
@@ -152,7 +173,6 @@ const initNavbar = () => {
   };
 
   showSpecificPage = (page) => {
-    console.log('page', page)
     const mainBody = document.getElementById('main-body').children;
     for ( const section of mainBody) {
       if (section.id === page) {
@@ -196,13 +216,14 @@ connectObs = () => {
     .then(data => {
       console.log('scene data', data);
       currentScenes = data.scenes;
+      bitsCurrentScenes = data.scenes;
       data.scenes.forEach(scene => {
-
         sceneMap.set(scene.name, scene);
       });
     })
     .then(data => {
       setScenesList();
+      setBitsScenesList();
     })
 
 	// You must add this handler to avoid uncaught exceptions.
@@ -327,6 +348,35 @@ startTwitchListener = () => {
 
   ComfyJS.onCheer = ( user, message, bits, flags, extra ) => {
     
+    const data = {
+      user: user,
+      message: message,
+      bits: bits,
+      flags: flags,
+      extra: extra
+    };
+    console.log('data', data);
+    console.log('dataJson', JSON.stringify(data))
+
+
+    let currentBitsSourceMap = getBitsSourceMap();
+    const currentBits = bits.toString();
+    if ( currentBitsSourceMap.has(currentBits) ) {
+      const currentSceneSource = currentBitsSourceMap.get(currentBits);
+      if (currentSceneSource) {
+        const group = currentSceneSource.group;
+        if (group === 'None') {
+          if (currentSceneSource.time === 0) {
+            toggleSpecifiedSource(currentSceneSource.source);
+          } else {
+            checkQueueStatus(currentSceneSource.source, currentSceneSource, user);
+          }
+        } else {
+          toggleBitsGroup(group, currentBits);
+        }
+      }
+    }
+
   }
 }
 
@@ -388,10 +438,36 @@ mapSourceReward = () => {
   }
 }
 
+mapSourceBits = () => {
+  const currentBitsSelected = bitsInputElement.value;
+  const sceneVal = obsScenesBitsElement.value;
+  const sourceVal = obsSourcesBitsElement.value;
+  const numVal = parseFloat(timedBitsElement.value) * 1000;
+  const timedVal = numVal === 0 ? 0 : numVal + 1000;
+  const groupVal = groupBitsElement.value ? groupBitsElement.value : 'None';
+  if (currentBitsSelected && sceneVal && sourceVal && currentBitsSelected !== 'not-connected' && sceneVal !== 'not-connected' && sourceVal !== 'not-connected' ) {
+    let currentBitsSourceMap = getBitsSourceMap();
+    currentBitsSourceMap.set(currentBitsSelected, {scene: sceneVal, source: sourceVal, time: timedVal, group: groupVal});
+    setBitsSourceMap(currentBitsSourceMap);
+  } else {
+    const data = {
+      message: "🛑 Please make sure all services are connected 🛑",
+      timeout: 4000,
+    }
+    snackbarContainer.MaterialSnackbar.showSnackbar(data)
+  }
+}
+
 removeSingleSourceReward = key => {
   let currentPointsSourceMap = getPointsSourceMap();
   currentPointsSourceMap.delete(key);
   setPointsSourceMap(currentPointsSourceMap);
+}
+
+removeSingleBitsSource = key => {
+  let currentPointsSourceMap = getBitsSourceMap();
+  currentPointsSourceMap.delete(key);
+  setBitsSourceMap(currentPointsSourceMap);
 }
 
 getPointsSourceMap = () => {
@@ -401,6 +477,15 @@ getPointsSourceMap = () => {
 setPointsSourceMap = (map) => {
   setStoreMap(pointsSourceToggleStore, 'points-source', map);
   setRewardPointsList(getPointsSourceMap());
+}
+
+getBitsSourceMap = () => {
+  return getStoreMap(bitsSourceToggleStore, 'bits-source');
+}
+
+setBitsSourceMap = (map) => {
+  setStoreMap(bitsSourceToggleStore, 'bits-source', map);
+  setBitsPointsList(getBitsSourceMap());
 }
 
 getStoreMap = (store, key) => {
@@ -434,6 +519,24 @@ setGroupStoreMapping  = () => {
   });
 }
 
+setBitGroupStoreMapping  = () => {
+  setStoreMap(bitsSourceGroupStore, 'bits-source-group', new Map());
+  const currentMap = getBitsSourceMap();
+  currentMap.forEach((val, key) => {
+    const groupVal = val.group;
+    if (groupVal !== 'None') {
+      const currentBitGroupMap =  getStoreMap(bitsSourceGroupStore, 'bits-source-group');
+      let currentSet = new Set();
+      if (currentBitGroupMap.has(groupVal)) {
+        currentSet = new Set(JSON.parse( currentBitGroupMap.get(groupVal) ));
+      } 
+      currentSet.add(key);
+      currentBitGroupMap.set(groupVal, JSON.stringify(Array.from( currentSet )));
+      setStoreMap(bitsSourceGroupStore, 'bits-source-group', currentBitGroupMap);
+    }
+  });
+}
+
 clearPointsSourceMap = () => {
   pointsSourceToggleStore.set('points-source', new Map());
   setRewardPointsList(getPointsSourceMap());
@@ -441,6 +544,15 @@ clearPointsSourceMap = () => {
 
 clearGroupMap = () => {
   sourceGroupStore.set('source-group', new Map());
+}
+
+clearBitsSourceMap = () => {
+  bitsSourceToggleStore.set('bits-source', new Map());
+  setBitsPointsList(getBitsSourceMap());
+}
+
+clearBitsGroupMap = () => {
+  bitsSourceGroupStore.set('bits-source-group', new Map());
 }
 
 /* Setting Scenes */
@@ -501,6 +613,63 @@ setScenesList = () => {
     })
   }
 
+setBitsScenesList = () => {
+  let firstScene;
+  obsScenesBitsElement.innerHTML = '';
+  bitsCurrentScenes.forEach((scene, index) => {
+    const optionEl = document.createElement("option");
+    optionEl.value = scene.name;
+    if ( index === 0 ) {
+      optionEl.selected = true;
+      firstScene = scene.name;
+    }
+    const text = document.createTextNode(scene.name);
+    // scene also has name of sources
+    optionEl.appendChild(text);
+    obsScenesBitsElement.appendChild(optionEl);
+    scene.sources.forEach(source => {
+      sourcesMap.set(source.name, source);
+    })
+  });
+  setBitsSourceList(firstScene);
+}
+
+  setBitsSourceList = (scene) => {
+    obsSourcesBitsElement.innerHTML = '';
+    const selectOption = document.createElement("option");
+    selectOption.selected = true;
+    selectOption.value = null;
+    selectOption.appendChild(document.createTextNode('(Select a source)'));
+    obsSourcesBitsElement.appendChild(selectOption);
+    const selectedScene = sceneMap.get(scene);
+    const selectedSources = selectedScene.sources;
+    selectedSources.forEach((source, index) => {
+      const optionEl = document.createElement("option");
+      let text;
+      if (source.type === 'ffmpeg_source') {
+        obs.sendCallback('GetMediaDuration', {
+          sourceName: source.name,
+        }, (err, res) => {
+          if (err) console.error(err);
+          const mediaTime = source.name + ` (${res.mediaDuration / 1000}s)`
+          optionEl.value = source.name;
+          text = document.createTextNode(mediaTime);
+          // scene also has name of sources
+          optionEl.appendChild(text);
+          optionEl.setAttribute('time', res.mediaDuration / 1000)
+          obsSourcesBitsElement.appendChild(optionEl);
+        })
+      } else {
+        optionEl.value = source.name;
+        text = document.createTextNode(source.name);
+        // scene also has name of sources
+        optionEl.appendChild(text);
+        obsSourcesBitsElement.appendChild(optionEl);
+      }
+    })
+  }
+
+  /** Sets dropdown list for reward points */
   setRewardsList = (rewards) => {
     rewardsElement.innerHTML = '';
     rewards.forEach(reward => {
@@ -545,6 +714,7 @@ setScenesList = () => {
     setGroupStoreMapping();
   }
 
+
   editRow = row => {
     const reward = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
     const scene = row.parentNode.parentNode.childNodes[2].nextSibling.innerHTML;
@@ -555,8 +725,6 @@ setScenesList = () => {
     obsScenesElement.value = scene;
     obsScenesElement.selected = true;
     setSourceList(scene);
-    console.log('source', source);
-    console.log('obsSourcesElement', obsSourcesElement);
     // Get new obsSourcesElement
     setTimeout(() => {
       const latestObsSourcesElement = document.getElementById('sources');
@@ -568,7 +736,6 @@ setScenesList = () => {
 
   removeRow = row => {
     const currentReward = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
-    console.log('currentReward', currentReward);
     removeSingleSourceReward(currentReward)
   }
 
@@ -590,17 +757,97 @@ setScenesList = () => {
     } else {
       timedElement.value = 0;
     }
-    const selectedSourceValue = obsSourcesElement.value;
-    console.log('selectedSource', selectedOption);
-    console.log('selectedSourceValue', selectedOption.value);
-    console.log('selectedSourceData', obsSourcesElement);
+  }
+
+  // BITS
+  setBitsPointsList = (bitSourceData) => {
+    bitsSourceListEl.innerHTML = `
+    <thead>
+      <tr>
+        <th class="mdl-data-table__cell--non-numeric">Bits</th>
+        <th class="mdl-data-table__cell--non-numeric">Scene</th>
+        <th class="mdl-data-table__cell--non-numeric">Source</th>
+        <th class="data-table-middle">Seconds</th>
+        <th class="mdl-data-table__cell--non-numeric">Group</th>
+        <th width="20px"></th>
+        <th width="20px"></th>
+      </tr>
+    </thead>`;
+    const tbodyEl = document.createElement('tbody');
+    for (const [key, val] of bitSourceData) {
+      const trEl = document.createElement('tr');
+      let listItem = `
+        <td class="mdl-data-table__cell--non-numeric reward">${key}</td>
+        <td class="mdl-data-table__cell--non-numeric">${val.scene}</td>
+        <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
+        <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
+        <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
+        <td><i class="material-icons pointer" onclick="editBitsRow(this)">create</i></td>
+        <td><i class="material-icons pointer" onclick="removeBitsRow(this)">delete</i></td>`;
+      trEl.innerHTML = listItem;
+      tbodyEl.appendChild(trEl);
+    }
+    // pointsSourceListEl.appendChild(p.childNodes[0]);
+    bitsSourceListEl.appendChild(tbodyEl);
+    setBitGroupStoreMapping();
+  }
+
+  editBitsRow = row => {
+    const latestBits = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
+    const scene = row.parentNode.parentNode.childNodes[2].nextSibling.innerHTML;
+    const source = row.parentNode.parentNode.childNodes[4].nextSibling.innerHTML;
+    const time = row.parentNode.parentNode.childNodes[6].nextSibling.innerHTML;
+    const group = row.parentNode.parentNode.childNodes[8].nextSibling.innerHTML;
+    rewardsElement.value = latestBits;
+    obsScenesBitsElement.value = scene;
+    obsScenesBitsElement.selected = true;
+    setBitsSourceList(scene);
+    // Get new obsSourcesElement
+    setTimeout(() => {
+      const latestObsSourcesElement = document.getElementById('bit-sources');
+      latestObsSourcesElement.value = source 
+    }, 100)
+    timedBitsElement.value = time;
+    groupBitsElement.value = group;
+  }
+
+  removeBitsRow = row => {
+    const currentReward = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
+    console.log('currentReward', currentReward);
+    removeSingleBitsSource(currentReward)
+  }
+
+  /* End Set Scenes */
+
+  onBitsSceneSelectionChange = () => {
+    const selectedSceneValue = obsScenesBitsElement.value;
+    setBitsSourceList(selectedSceneValue);
+  }
+
+  onBitsSourceSelectionChange = () => {
+    //When source is selected, set timedElement to value 
+    const selectedIndex = obsSourcesBitsElement.selectedIndex;
+    const selectedOption = obsSourcesBitsElement.options[selectedIndex];
+    const timeValue = selectedOption.getAttribute('time');
+
+    if (timeValue) {
+      timedBitsElement.value = timeValue;
+    } else {
+      timedBitsElement.value = 0;
+    }
   }
 
   /* OBS Toggling */
 
-  testToggleSource = () => {
+  clearPointsTable = () => {
     clearPointsSourceMap();
     clearGroupMap();
+
+  }
+
+  clearBitsTable = () => {
+    clearBitsSourceMap();
+    clearBitsGroupMap();
 
   }
   
