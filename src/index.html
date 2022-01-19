@@ -46,7 +46,7 @@
       </label>
     </div>
     <div id="main-body">
-
+      <!-- START HOME PAGE -->
       <section id="home-page" class="intro-appear">
         <h1 class="show">👋 Hello 👋</h1>
         <p class="show">This app is used to toggle obs sources using various Twitch services</p>
@@ -70,7 +70,8 @@
           </button>
         </div>
       </section>
-  
+      <!-- END HOME PAGE -->
+      <!-- START CHANNEL POINTS PAGE -->
       <div id="channel-points-page" class="hide-page">
         <div class="right-side">
           <div class="column2 scenes">
@@ -122,22 +123,85 @@
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="getRewards()">
               Refresh Rewards
             </button>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="testToggleSource()">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="clearPointsTable()">
               Clear List
             </button>
           </div>
         </form>
         <div class="reward-points-list">
-          <!-- <ul class="mdl-list" id="points-source-list">
-          </ul> -->
           <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp list-table-props" id="points-source-list">
             <thead>
             </tbody>
           </table>
         </div>
       </div>
+      <!-- END CHANNEL POINTS PAGE -->
+      <!-- START BITS PAGE -->
       <div id="bits-page" class="hide-page">
+        
+        <div class="right-side">
+          <div class="column2 scenes">
+            <div class="mid-column2">
+              <!-- <label for="bits-amount">Bits Amount</label> -->
+              <div class="sub-title">Amount of Bits</div>
+              <input class="mdl-textfield__input" type="number" min="1" pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$" value="1" id="bits-input">
+              <span class="mdl-textfield__error">Input is not an acceptable number!</span>
+          
+            </div>
+            <div class="mid-column1">
+              <div class="sub-title">OBS Scenes</div>
+              <select name="scenes" class="mdl-textfield__input" id="bit-scenes" onchange="onBitsSceneSelectionChange()">
+                <option value="not-connected">OBS Not Connected</option>
+              </select>
+            </div>
+            <div class="mid-column2">
+              <div class="sub-title">OBS Sources</div>
+              <select name="sources" class="mdl-textfield__input" id="bit-sources" onchange="onBitsSourceSelectionChange()">
+                <option value="not-connected">OBS Not Connected</option>
+              </select>
+            </div>
+          </div>
+          <div class="advanced-options">
+            <div class="sub-title2" id="bit-time-title">Timed? (Sec)</div>
+            <div class="mdl-tooltip" data-mdl-for="bit-time-title">
+              Sets a timer for duration of source toggle. Set 0 if you want to just toggle on and off.
+              Set the number of seconds the media is.
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$" value="0" id="bit-time-input">
+              <label class="mdl-textfield__label" for="bit-time-input">Timed?</label>
+              <span class="mdl-textfield__error">Input is not an acceptable number!</span>
+            </div>
+            <div class="sub-title2" id="bit-group-title">Group</div>
+            <div class="mdl-tooltip" data-mdl-for="bit-group-title">
+              Add scene to group that will toggle off all in that group and only turn on specified scene.
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" value="None" id="bit-group-input">
+              <label class="mdl-textfield__label" for="group-input">Group</label>
+            </div>
+          </div>
+        </div>
+        <form action="#" onsubmit="return false" class="bits-button-list">
+          <div class="button-list">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" onclick="mapSourceBits()">
+              Add to List
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="clearBitsTable()">
+              Clear List
+            </button>
+          </div>
+        </form>
+        <div class="reward-bits-list">
+          <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp list-table-props" id="bits-source-list">
+            <thead>
+            </tbody>
+          </table>
+        </div>
       </div>
+      <!-- END BITS PAGE -->
+
+      <!-- START SETTINGS PAGE -->
       <div id="settings-page" class="hide-page">
         <div class="row">
           <div class="column1">
@@ -203,7 +267,7 @@
           <div class="small-text-red copy">channel:manage:redemptions channel:read:redemptions channel:read:hype_train channel:read:subscriptions moderation:read moderation:read user:edit user:read:email chat:edit chat:read</div>
         </dialog>
       </div>
-  
+      <!-- END SETTINGS PAGE -->
   
       
     </div>
