@@ -1,3 +1,4 @@
+
 // const ExpressServer = require('./assets/js/server');
 const obs = new OBSWebSocket();
 
@@ -916,5 +917,13 @@ setBitsScenesList = () => {
     shell.openExternal('https://twitchapps.com/tokengen/');
   }
 
+  getTwitch = () => {
+    shell.openExternal('https://id.twitch.tv/oauth2/authorize?client_id=98a3op8i9g48ppw3ji60pw6qlcix52&redirect_uri=http://localhost&response_type=token&scope=chat:read')
+      .then(val => {
+        console.log('val', val)
+      }).catch( err => {
+        console.error(err)
+      })
+  }
 
 initNavbar();
