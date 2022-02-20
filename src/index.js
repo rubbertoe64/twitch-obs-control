@@ -917,19 +917,4 @@ setBitsScenesList = () => {
   }
 
 
-  /** TODO 
-   * 
-   * Use store to store the set auto toggleable list
-   * make crud method to 
-   * 
-   * save list in an array
-   * 
-   * martin livesplit - martin
-   * 
-   * RidersU
-   * 
-   */
-
-
-
 initNavbar();
