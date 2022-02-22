@@ -44,6 +44,14 @@ option {
   color: white !important;
 }
 
+.mdl-checkbox__box-outline {
+  border: white solid 1px !important;
+}
+
+.mdl-checkbox.is-checked .mdl-checkbox__tick-outline {
+  background-color: rgb(255, 64, 129) !important;
+}
+
 .mdl-data-table tbody tr:hover {
   background-color: #eeeeee14 !important;
 }
