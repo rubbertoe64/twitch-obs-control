@@ -1,3 +1,7 @@
+## Version 2.2.0
+
+- Add: Random group toggling
+
 ## Version 2.1.0
 
 - Fixed: Navbar dropdown
