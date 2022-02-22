@@ -85,10 +85,6 @@ section {
   color: rgb(250, 95, 95);
 }
 
-.theme-switch-button > label {
-  top: 70px;
-}
-
 .mdl-dialog {
   text-align: center;
   width: 50% !important;
