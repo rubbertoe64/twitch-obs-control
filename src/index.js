@@ -7,6 +7,7 @@ let sceneMap = new Map();
 let sourcesMap = new Map();
 let groupMap = new Map();
 let queueMap = new Map();
+let queueRandomMap = new Map();
 
 const store = new Store({
   configName: 'obs-proxy-settings',
@@ -70,6 +71,8 @@ const obsScenesElement = document.getElementById('scenes');
 const obsSourcesElement = document.getElementById('sources');
 const timedElement = document.getElementById('time-input');
 const groupElement = document.getElementById('group-input');
+const randomElement = document.getElementById('random-input');
+const randomLabelElement = document.getElementById('random-label');
 const pointsSourceListEl = document.getElementById('points-source-list');
 // Bits
 const bitsInputElement = document.getElementById('bits-input');
@@ -338,19 +341,25 @@ getRewards = async () => {
 startTwitchListener = () => {
   // ComfyJS
   ComfyJS.onReward = ( user, reward, cost, extra ) => {
+    console.log('reward used', reward)
     let currentPointsSourceMap = getPointsSourceMap();
     if ( currentPointsSourceMap.has(reward) ) {
       const currentSceneSource = currentPointsSourceMap.get(reward);
+      console.log('currentScene', currentSceneSource);
       if (currentSceneSource) {
-        const group = currentSceneSource.group;
-        if (group === 'None') {
-          if (currentSceneSource.time === 0) {
-            toggleSpecifiedSource(currentSceneSource.source);
-          } else {
-            checkQueueStatus(currentSceneSource.source, currentSceneSource, user);
-          }
+        if (currentSceneSource.random) {
+          toggleRandomSources(currentSceneSource, user)
         } else {
-          toggleGroup(group, reward);
+          const group = currentSceneSource.group;
+          if (group === 'None') {
+            if (currentSceneSource.time === 0) {
+              toggleSpecifiedSource(currentSceneSource.source);
+            } else {
+              checkQueueStatus(currentSceneSource.source, currentSceneSource, user);
+            }
+          } else {
+            toggleGroup(group, reward);
+          }
         }
       }
     }
@@ -404,11 +413,31 @@ checkQueueStatus = (currentReward, source, user) => {
   }
 }
 
+checkQueueRandomStatus = (currentReward, folder, sources, user) => {
+  if (queueRandomMap.has(currentReward)) {
+    const currentActiveReward = queueRandomMap.get(currentReward);
+    currentActiveReward.rewardArray.push(user);
+    // set reward
+    toggleRandomRewardQueue(currentActiveReward);
+  } else {
+    queueRandomMap.set(currentReward, {rewards: sources, folder: folder, rewardArray: [user], flag: false});
+    const currentActiveReward = queueRandomMap.get(currentReward);
+    toggleRandomRewardQueue(currentActiveReward);
+  }
+}
+
 toggleRewardQueue = (queue) => {
   if (!queue.flag) {
     // queue.flag = true;
     const currentActiveReward = queueMap.get(queue.reward.source);
     timedToggleSource(queue.reward.source, queue.reward.time);
+  }
+}
+
+toggleRandomRewardQueue = queue => {
+  if (!queue.flag) {
+    // queue.flag = true;
+    timedToggleRandomSource(queue.folder.source);
   }
 }
 
@@ -435,9 +464,10 @@ mapSourceReward = () => {
   const numVal = parseFloat(timedElement.value) * 1000;
   const timedVal = numVal === 0 ? 0 : numVal + 1000;
   const groupVal = groupElement.value ? groupElement.value : 'None';
+  const randomVal = randomElement.checked ? true : false;
   if (currentReward && sceneVal && sourceVal && currentReward !== 'not-connected' && sceneVal !== 'not-connected' && sourceVal !== 'not-connected' ) {
     let currentPointsSourceMap = getPointsSourceMap();
-    currentPointsSourceMap.set(currentReward, {scene: sceneVal, source: sourceVal, time: timedVal, group: groupVal});
+    currentPointsSourceMap.set(currentReward, {scene: sceneVal, source: sourceVal, time: timedVal, group: groupVal, random: randomVal});
     setPointsSourceMap(currentPointsSourceMap);
   } else {
     const data = {
@@ -701,8 +731,9 @@ setBitsScenesList = () => {
         <th class="mdl-data-table__cell--non-numeric">Source</th>
         <th class="data-table-middle">Seconds</th>
         <th class="mdl-data-table__cell--non-numeric">Group</th>
-        <th width="20px"></th>
-        <th width="20px"></th>
+        <th class="mdl-data-table__cell--non-numeric">Random?</th>
+        <th width="15px"></th>
+        <th width="15px"></th>
       </tr>
     </thead>`;
     const tbodyEl = document.createElement('tbody');
@@ -714,6 +745,7 @@ setBitsScenesList = () => {
         <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
         <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
         <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
+        <td class="mdl-data-table__cell--non-numeric">${val.random ? 'Yes' : 'No'}</td>
         <td><i class="material-icons pointer" onclick="editRow(this)">create</i></td>
         <td><i class="material-icons pointer" onclick="removeRow(this)">delete</i></td>`;
       trEl.innerHTML = listItem;
@@ -731,6 +763,7 @@ setBitsScenesList = () => {
     const source = row.parentNode.parentNode.childNodes[4].nextSibling.innerHTML;
     const time = row.parentNode.parentNode.childNodes[6].nextSibling.innerHTML;
     const group = row.parentNode.parentNode.childNodes[8].nextSibling.innerHTML;
+    const random = row.parentNode.parentNode.childNodes[10].nextSibling.innerHTML;
     rewardsElement.value = reward;
     obsScenesElement.value = scene;
     obsScenesElement.selected = true;
@@ -742,6 +775,9 @@ setBitsScenesList = () => {
     }, 100)
     timedElement.value = time;
     groupElement.value = group;
+    randomElement.checked = (random === 'Yes') ? true : false;
+    (random === 'Yes') ? randomLabelElement.MaterialCheckbox.check() : randomLabelElement.MaterialCheckbox.uncheck();
+
   }
 
   removeRow = row => {
@@ -920,6 +956,55 @@ setBitsScenesList = () => {
       sourcesMap.set(key, selectedSource);
     }
 
+  }
+
+  timedToggleRandomSource = (key) => {
+    const selectedFolder = queueRandomMap.get(key);
+    if (selectedFolder.rewardArray.length > 0) {
+      selectedFolder.flag = true;
+      selectedFolder.rewardArray.shift();
+      const currentArray = selectedFolder.rewards;
+      const currentReward = currentArray[Math.floor(Math.random()*currentArray.length)];
+      console.log('currentReward', currentReward);
+      if ( currentReward.type === 'ffmpeg_source') {
+        obs.sendCallback('GetMediaDuration', {
+          sourceName: currentReward.name,
+        }, (err, res) => {
+          if (err) console.error(err);
+          const mediaTime = res.mediaDuration;
+          const currentSourceName = currentReward.name;
+          toggleSource(currentSourceName, false);
+          setTimeout(() => {
+            toggleSource(currentSourceName, true);
+            setTimeout(() => {
+              toggleSource(currentSourceName, false);
+              if(selectedFolder.rewardArray.length > 0) {
+                timedToggleRandomSource(key);
+              } else {
+                selectedFolder.flag = false;
+              }
+              console.log('timedOut')
+            }, mediaTime);
+          }, 500);
+        })
+      } else {
+        /* TODO: Get other source types to work */
+      }
+    }
+  }
+
+  toggleRandomSources = (folder, user) => {
+    console.log('folder', folder);
+    obs.send('GetSceneList').then(data => {
+      const scenes = data.scenes;
+      const currentScene = scenes.filter(scene => scene.name === folder.scene);
+      const sources = currentScene[0].sources;
+      const currentFolder = sources.filter(source => source.name === folder.source)[0];
+      const groupedSources = currentFolder.groupChildren;
+      checkQueueRandomStatus(folder.source, folder, groupedSources, user);
+      // queueRandomMap.set(folder.source, {rewards: groupedSources, flag: false})
+    })
+    // obs.sendCallback('')
   }
 
   getToken = () => {
