@@ -1,3 +1,4 @@
+
 // const ExpressServer = require('./assets/js/server');
 const obs = new OBSWebSocket();
 
@@ -206,9 +207,9 @@ connectObs = () => {
   const { port, password } = store.get("websocket")
   obs.connect({ address: `localhost:${port}`, password: `${password}` }).then(() => {
       const data = {
-				message: "👍🏼 OBS Connected Successfully",
-				timeout: 2000,
-			}
+                message: "👍🏼 OBS Connected Successfully",
+                timeout: 2000,
+            }
       snackbarContainer.MaterialSnackbar.showSnackbar(data)
       this.toggleObsConnected();
       return obs.send('GetSceneList');
@@ -226,31 +227,40 @@ connectObs = () => {
       setBitsScenesList();
     })
 
-	// You must add this handler to avoid uncaught exceptions.
-	obs.on("error", (err) => {
+    // You must add this handler to avoid uncaught exceptions.
+    obs.on("error", (err) => {
     console.error("socket error:", err)
     const data = {
-			message: err,
-			timeout: 2000,
-		}
-		snackbarContainer.MaterialSnackbar.showSnackbar(data)
-	})
-
-
-  obs.on('SourceCreated', err => {
-    console.log('err', err);
-  })
+            message: err,
+            timeout: 2000,
+        }
+        snackbarContainer.MaterialSnackbar.showSnackbar(data)
+    })
 
 }
+
+  refreshObsScenes = () => {
+      obs.send('GetSceneList').then((data) => {
+        console.log('scene data', data);
+        currentScenes = data.scenes;
+        bitsCurrentScenes = data.scenes;
+        data.scenes.forEach(scene => {
+          sceneMap.set(scene.name, scene);
+        });
+      }).then(() => {
+        setScenesList();
+        setBitsScenesList();
+      })
+  }
 
 disconnectObs = () => {
   obs.disconnect();
   const data = {
-		message: "👋🏼 OBS Disconnected Successfully 👋🏼",
-		timeout: 2000,
-	}
-	snackbarContainer.MaterialSnackbar.showSnackbar(data)
-	this.toggleObsConnected()
+        message: "👋🏼 OBS Disconnected Successfully 👋🏼",
+        timeout: 2000,
+    }
+    snackbarContainer.MaterialSnackbar.showSnackbar(data)
+    this.toggleObsConnected()
 }
 
 let isConnected = false;
@@ -261,7 +271,7 @@ toggleObsConnected = () => {
     obsDisconnectBut.classList.remove("hidden");
   } else {
     obsConnectBut.classList.remove("hidden");
-		obsDisconnectBut.classList.add("hidden");
+        obsDisconnectBut.classList.add("hidden");
   }
 }
 
@@ -916,20 +926,13 @@ setBitsScenesList = () => {
     shell.openExternal('https://twitchapps.com/tokengen/');
   }
 
-
-  /** TODO 
-   * 
-   * Use store to store the set auto toggleable list
-   * make crud method to 
-   * 
-   * save list in an array
-   * 
-   * martin livesplit - martin
-   * 
-   * RidersU
-   * 
-   */
-
-
+  getTwitch = () => {
+    shell.openExternal('https://id.twitch.tv/oauth2/authorize?client_id=98a3op8i9g48ppw3ji60pw6qlcix52&redirect_uri=http://localhost&response_type=token&scope=chat:read')
+      .then(val => {
+        console.log('val', val)
+      }).catch( err => {
+        console.error(err)
+      })
+  }
 
 initNavbar();
