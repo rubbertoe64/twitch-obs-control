@@ -437,7 +437,7 @@ toggleRewardQueue = (queue) => {
 toggleRandomRewardQueue = queue => {
   if (!queue.flag) {
     // queue.flag = true;
-    timedToggleRandomSource(queue.folder.source);
+    timedToggleRandomSource(queue.folder.source, queueRandomMap);
   }
 }
 
@@ -958,8 +958,8 @@ setBitsScenesList = () => {
 
   }
 
-  timedToggleRandomSource = (key) => {
-    const selectedFolder = queueRandomMap.get(key);
+  timedToggleRandomSource = (key, chosenMap) => {
+    const selectedFolder = chosenMap.get(key);
     if (selectedFolder.rewardArray.length > 0) {
       selectedFolder.flag = true;
       selectedFolder.rewardArray.shift();
@@ -979,7 +979,7 @@ setBitsScenesList = () => {
             setTimeout(() => {
               toggleSource(currentSourceName, false);
               if(selectedFolder.rewardArray.length > 0) {
-                timedToggleRandomSource(key);
+                timedToggleRandomSource(key, chosenMap);
               } else {
                 selectedFolder.flag = false;
               }
