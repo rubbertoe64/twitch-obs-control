@@ -1,3 +1,7 @@
+## Version 2.3.0
+
+- Add: Random group to bits
+
 ## Version 2.2.0
 
 - Add: Random group toggling

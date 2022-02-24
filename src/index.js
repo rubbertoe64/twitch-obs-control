@@ -80,6 +80,8 @@ const obsScenesBitsElement = document.getElementById('bit-scenes');
 const obsSourcesBitsElement = document.getElementById('bit-sources');
 const timedBitsElement = document.getElementById('bit-time-input');
 const groupBitsElement = document.getElementById('bit-group-input');
+const randomBitsElement = document.getElementById('random-bits-input');
+const randomBitsLabelElement = document.getElementById('random-bits-label');
 const bitsSourceListEl = document.getElementById('bits-source-list');
 
 const dialog = document.querySelector('dialog');
@@ -343,26 +345,7 @@ startTwitchListener = () => {
   ComfyJS.onReward = ( user, reward, cost, extra ) => {
     console.log('reward used', reward)
     let currentPointsSourceMap = getPointsSourceMap();
-    if ( currentPointsSourceMap.has(reward) ) {
-      const currentSceneSource = currentPointsSourceMap.get(reward);
-      console.log('currentScene', currentSceneSource);
-      if (currentSceneSource) {
-        if (currentSceneSource.random) {
-          toggleRandomSources(currentSceneSource, user)
-        } else {
-          const group = currentSceneSource.group;
-          if (group === 'None') {
-            if (currentSceneSource.time === 0) {
-              toggleSpecifiedSource(currentSceneSource.source);
-            } else {
-              checkQueueStatus(currentSceneSource.source, currentSceneSource, user);
-            }
-          } else {
-            toggleGroup(group, reward);
-          }
-        }
-      }
-    }
+    runToggles(currentPointsSourceMap, reward, user)
   }
 
   ComfyJS.onCheer = ( user, message, bits, flags, extra ) => {
@@ -377,12 +360,20 @@ startTwitchListener = () => {
     console.log('data', data);
     console.log('dataJson', JSON.stringify(data))
 
-
     let currentBitsSourceMap = getBitsSourceMap();
     const currentBits = bits.toString();
-    if ( currentBitsSourceMap.has(currentBits) ) {
-      const currentSceneSource = currentBitsSourceMap.get(currentBits);
-      if (currentSceneSource) {
+    runToggles(currentBitsSourceMap, currentBits, user)
+
+  }
+}
+
+runToggles = ( map, reward, user ) => {
+  if ( map.has(reward) ) {
+    const currentSceneSource = map.get(reward);
+    if (currentSceneSource) {
+      if (currentSceneSource.random) {
+        toggleRandomSources(currentSceneSource, user)
+      } else {
         const group = currentSceneSource.group;
         if (group === 'None') {
           if (currentSceneSource.time === 0) {
@@ -391,11 +382,10 @@ startTwitchListener = () => {
             checkQueueStatus(currentSceneSource.source, currentSceneSource, user);
           }
         } else {
-          toggleBitsGroup(group, currentBits);
+          toggleGroup(group, reward);
         }
       }
     }
-
   }
 }
 
@@ -437,7 +427,7 @@ toggleRewardQueue = (queue) => {
 toggleRandomRewardQueue = queue => {
   if (!queue.flag) {
     // queue.flag = true;
-    timedToggleRandomSource(queue.folder.source);
+    timedToggleRandomSource(queue.folder.source, queueRandomMap);
   }
 }
 
@@ -454,6 +444,10 @@ toggleGroup = (group, reward) => {
       toggleSpecifiedSource(currentSceneSource.source);
     }
   });
+
+}
+
+toggleBitsGroup = (group, reward) => {
 
 }
 
@@ -485,9 +479,11 @@ mapSourceBits = () => {
   const numVal = parseFloat(timedBitsElement.value) * 1000;
   const timedVal = numVal === 0 ? 0 : numVal + 1000;
   const groupVal = groupBitsElement.value ? groupBitsElement.value : 'None';
+  const randomBitsVal = randomBitsElement.checked ? true : false;
+
   if (currentBitsSelected && sceneVal && sourceVal && currentBitsSelected !== 'not-connected' && sceneVal !== 'not-connected' && sourceVal !== 'not-connected' ) {
     let currentBitsSourceMap = getBitsSourceMap();
-    currentBitsSourceMap.set(currentBitsSelected, {scene: sceneVal, source: sourceVal, time: timedVal, group: groupVal});
+    currentBitsSourceMap.set(currentBitsSelected, {scene: sceneVal, source: sourceVal, time: timedVal, group: groupVal,  random: randomBitsVal});
     setBitsSourceMap(currentBitsSourceMap);
   } else {
     const data = {
@@ -815,6 +811,7 @@ setBitsScenesList = () => {
         <th class="mdl-data-table__cell--non-numeric">Source</th>
         <th class="data-table-middle">Seconds</th>
         <th class="mdl-data-table__cell--non-numeric">Group</th>
+        <th class="mdl-data-table__cell--non-numeric">Random?</th>
         <th width="20px"></th>
         <th width="20px"></th>
       </tr>
@@ -828,6 +825,7 @@ setBitsScenesList = () => {
         <td class="mdl-data-table__cell--non-numeric">${val.source}</td>
         <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
         <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
+        <td class="mdl-data-table__cell--non-numeric">${val.random ? 'Yes' : 'No'}</td>
         <td><i class="material-icons pointer" onclick="editBitsRow(this)">create</i></td>
         <td><i class="material-icons pointer" onclick="removeBitsRow(this)">delete</i></td>`;
       trEl.innerHTML = listItem;
@@ -844,6 +842,7 @@ setBitsScenesList = () => {
     const source = row.parentNode.parentNode.childNodes[4].nextSibling.innerHTML;
     const time = row.parentNode.parentNode.childNodes[6].nextSibling.innerHTML;
     const group = row.parentNode.parentNode.childNodes[8].nextSibling.innerHTML;
+    const random = row.parentNode.parentNode.childNodes[10].nextSibling.innerHTML;
     rewardsElement.value = latestBits;
     obsScenesBitsElement.value = scene;
     obsScenesBitsElement.selected = true;
@@ -855,6 +854,8 @@ setBitsScenesList = () => {
     }, 100)
     timedBitsElement.value = time;
     groupBitsElement.value = group;
+    randomBitsElement.checked = (random === 'Yes') ? true : false;
+    (random === 'Yes') ? randomBitsLabelElement.MaterialCheckbox.check() : randomBitsLabelElement.MaterialCheckbox.uncheck();
   }
 
   removeBitsRow = row => {
@@ -958,8 +959,8 @@ setBitsScenesList = () => {
 
   }
 
-  timedToggleRandomSource = (key) => {
-    const selectedFolder = queueRandomMap.get(key);
+  timedToggleRandomSource = (key, chosenMap) => {
+    const selectedFolder = chosenMap.get(key);
     if (selectedFolder.rewardArray.length > 0) {
       selectedFolder.flag = true;
       selectedFolder.rewardArray.shift();
@@ -979,7 +980,7 @@ setBitsScenesList = () => {
             setTimeout(() => {
               toggleSource(currentSourceName, false);
               if(selectedFolder.rewardArray.length > 0) {
-                timedToggleRandomSource(key);
+                timedToggleRandomSource(key, chosenMap);
               } else {
                 selectedFolder.flag = false;
               }
