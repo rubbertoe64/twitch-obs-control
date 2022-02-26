@@ -1,3 +1,7 @@
+## Version 2.3.1
+
+- Add: Play button to list of rewards and bits
+
 ## Version 2.3.0
 
 - Add: Random group to bits
