@@ -728,8 +728,9 @@ setBitsScenesList = () => {
         <th class="data-table-middle">Seconds</th>
         <th class="mdl-data-table__cell--non-numeric">Group</th>
         <th class="mdl-data-table__cell--non-numeric">Random?</th>
-        <th width="15px"></th>
-        <th width="15px"></th>
+        <th width="10px"></th>
+        <th width="10px"></th>
+        <th width="10px"></th>
       </tr>
     </thead>`;
     const tbodyEl = document.createElement('tbody');
@@ -742,6 +743,7 @@ setBitsScenesList = () => {
         <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
         <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
         <td class="mdl-data-table__cell--non-numeric">${val.random ? 'Yes' : 'No'}</td>
+        <td><i class="material-icons pointer" onclick="testReward(this)">play_arrow</i></td>
         <td><i class="material-icons pointer" onclick="editRow(this)">create</i></td>
         <td><i class="material-icons pointer" onclick="removeRow(this)">delete</i></td>`;
       trEl.innerHTML = listItem;
@@ -750,6 +752,12 @@ setBitsScenesList = () => {
     // pointsSourceListEl.appendChild(p.childNodes[0]);
     pointsSourceListEl.appendChild(tbodyEl);
     setGroupStoreMapping();
+  }
+
+  testReward = (row) => {
+    const currentReward = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
+    let currentPointsSourceMap = getPointsSourceMap();
+    runToggles(currentPointsSourceMap, currentReward, 'test')
   }
 
 
@@ -812,8 +820,9 @@ setBitsScenesList = () => {
         <th class="data-table-middle">Seconds</th>
         <th class="mdl-data-table__cell--non-numeric">Group</th>
         <th class="mdl-data-table__cell--non-numeric">Random?</th>
-        <th width="20px"></th>
-        <th width="20px"></th>
+        <th width="10px"></th>
+        <th width="10px"></th>
+        <th width="10px"></th>
       </tr>
     </thead>`;
     const tbodyEl = document.createElement('tbody');
@@ -826,6 +835,7 @@ setBitsScenesList = () => {
         <td class="data-table-middle">${val.time/1000 === 0 ? 0 : (val.time - 1000 )/1000 }</td>
         <td class="mdl-data-table__cell--non-numeric">${val.group}</td>
         <td class="mdl-data-table__cell--non-numeric">${val.random ? 'Yes' : 'No'}</td>
+        <td><i class="material-icons pointer" onclick="testBits(this)">play_arrow</i></td>
         <td><i class="material-icons pointer" onclick="editBitsRow(this)">create</i></td>
         <td><i class="material-icons pointer" onclick="removeBitsRow(this)">delete</i></td>`;
       trEl.innerHTML = listItem;
@@ -834,6 +844,12 @@ setBitsScenesList = () => {
     // pointsSourceListEl.appendChild(p.childNodes[0]);
     bitsSourceListEl.appendChild(tbodyEl);
     setBitGroupStoreMapping();
+  }
+
+  testBits = (row) => {
+    const currentBits = row.parentNode.parentNode.childNodes[0].nextSibling.innerHTML;
+    let currentBitsSourceMap = getBitsSourceMap();
+    runToggles(currentBitsSourceMap, currentBits, 'test')
   }
 
   editBitsRow = row => {
